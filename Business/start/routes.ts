@@ -19,6 +19,11 @@
 */
 
 import Route from '@ioc:Adonis/Core/Route'
+import "./routes/driver.ts"
+import "./routes/service.ts"
+import "./routes/trip.ts"
+import "./routes/commentandrating.ts"
+
 
 Route.get('/', async () => {
   return { hello: 'world' }
