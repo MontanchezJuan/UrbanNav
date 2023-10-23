@@ -6,7 +6,8 @@ export default class extends BaseSchema {
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-
+      table.integer("user_id")
+      table.boolean("is_active")
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
