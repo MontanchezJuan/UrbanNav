@@ -1,6 +1,18 @@
 import { DateTime } from 'luxon'
-import { BaseModel, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  HasMany,
+  HasOne,
+  belongsTo,
+  column,
+  hasMany,
+  hasOne,
+} from '@ioc:Adonis/Lucid/Orm'
 import CommentandRating from './CommentandRating'
+import Customer from './Customer'
+import Trip from './Trip'
+import Bill from './Bill'
 
 export default class Service extends BaseModel {
   @column({ isPrimary: true })
@@ -18,29 +30,25 @@ export default class Service extends BaseModel {
   @column()
   public status: number
 
-  /**
-   * @belongsTo(() => Customer,{
-   * foreignkey: "customer_id"})
-   * customer: BelongsTo<typeof Customer>
-   */
-  
-  /**
-   * @belongTo(() => Trip,{
-   * foreignkey: "trip_id"})
-   * trip: belongsTo<typeof Trip>
-   */
+  @belongsTo(() => Customer, {
+    foreignKey: 'customer_id',
+  })
+  customer: BelongsTo<typeof Customer>
 
-  /**
-   * @hasOne(() => Bill,{
-   * foreignkey: "service_id"})
-   * bill: HasOne<typeof Bill>
-   */
+  @belongsTo(() => Trip, {
+    foreignKey: 'trip_id',
+  })
+  trip: BelongsTo<typeof Trip>
 
-  @hasMany(() => CommentandRating,{
-    foreignKey: "service_id"
+  @hasOne(() => Bill, {
+    foreignKey: 'service_id',
+  })
+  bill: HasOne<typeof Bill>
+
+  @hasMany(() => CommentandRating, {
+    foreignKey: 'service_id',
   })
   commentsAndRatings: HasMany<typeof CommentandRating>
-  
 
   @column()
   @column.dateTime({ autoCreate: true })

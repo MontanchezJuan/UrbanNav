@@ -7,10 +7,10 @@ export default class Driver extends BaseModel {
   public id: number
 
   @column()
-  public user_id : string
+  public user_id: string
 
   @column()
-  public is_active:boolean
+  public is_active: boolean
 
   // relacion 1 a 1 con licencia
   /**
@@ -26,18 +26,10 @@ export default class Driver extends BaseModel {
    * vehicles : HasMany<typeof Vehicle>
    */
 
-  // relacion 1 a 1 con licencia
-  /**
-   * @hasOne(() => License,{
-   * foreignkey: "id_driver"})
-   * license : HasOne<typeof License>
-   */
-
-  @hasMany(() => Trip,{
-    foreignKey: "driver_id"
+  @hasMany(() => Trip, {
+    foreignKey: 'driver_id',
   })
   trips: HasMany<typeof Trip>
-  
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

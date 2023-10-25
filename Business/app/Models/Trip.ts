@@ -1,11 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasOne,belongsTo, BelongsTo, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column, hasOne, belongsTo, BelongsTo, HasOne } from '@ioc:Adonis/Lucid/Orm'
 import Driver from './Driver'
 import Service from './Service'
 
-
 export default class Trip extends BaseModel {
-
   @column({ isPrimary: true })
   public id: number
 
@@ -16,27 +14,27 @@ export default class Trip extends BaseModel {
   public destination: number
 
   @column()
-  public driver_id : number
+  public driver_id: number
 
   @column()
-  public started_at : DateTime
+  public started_at: DateTime
 
   @column()
-  public finished_at : DateTime
+  public finished_at: DateTime
 
   @column()
   public distance: number
 
   @column()
-  public status: number  
+  public status: number
 
-  @belongsTo(() => Driver,{
-    foreignKey:"driver_id"
+  @belongsTo(() => Driver, {
+    foreignKey: 'driver_id',
   })
   driver: BelongsTo<typeof Driver>
 
-  @hasOne(() => Service,{
-    foreignKey:"trip_id"
+  @hasOne(() => Service, {
+    foreignKey: 'trip_id',
   })
   service: HasOne<typeof Service>
 
@@ -46,4 +44,3 @@ export default class Trip extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 }
-module.exports = Driver;
