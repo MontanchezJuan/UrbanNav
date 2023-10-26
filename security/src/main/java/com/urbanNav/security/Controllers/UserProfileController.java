@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.urbanNav.security.Models.Permission;
 import com.urbanNav.security.Models.UserProfile;
 import com.urbanNav.security.Repositories.UserProfileRepository;
 
@@ -61,7 +60,7 @@ public class UserProfileController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
-    public void delete(@PathVariable String id){
+    public void destroy(@PathVariable String id){
         UserProfile profile = this.profileRepository.findById(id).orElse(null);
         if (profile != null ) {
             this.profileRepository.delete(profile);

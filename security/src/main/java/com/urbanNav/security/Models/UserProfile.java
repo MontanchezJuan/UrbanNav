@@ -73,13 +73,4 @@ public class UserProfile {
     public void setNumberPhone(String numberPhone) {
         this.numberPhone = numberPhone;
     }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
 }
