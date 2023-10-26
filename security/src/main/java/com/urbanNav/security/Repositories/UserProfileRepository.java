@@ -9,5 +9,4 @@ import com.urbanNav.security.Models.UserProfile;
  */
 public interface UserProfileRepository extends MongoRepository<UserProfile, String> {
 
-    
 }
