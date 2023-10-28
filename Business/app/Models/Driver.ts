@@ -12,6 +12,9 @@ export default class Driver extends BaseModel {
   @column()
   public is_active: boolean
 
+  @column()
+  public status: number
+
   // relacion 1 a 1 con licencia
   /**
    * @hasOne(() => License,{

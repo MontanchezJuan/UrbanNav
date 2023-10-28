@@ -1,5 +1,14 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasOne, belongsTo, BelongsTo, HasOne } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  column,
+  hasOne,
+  belongsTo,
+  BelongsTo,
+  HasOne,
+  hasMany,
+  HasMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Driver from './Driver'
 import Service from './Service'
 
@@ -37,6 +46,11 @@ export default class Trip extends BaseModel {
     foreignKey: 'trip_id',
   })
   service: HasOne<typeof Service>
+
+  // @hasMany(() => TripPoint,{
+  //   foreignKey:"trip_id",
+  // })
+  // tripPoints: HasMany<typeof TripPoint>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
