@@ -20,4 +20,29 @@ export default class VehiclesController {
     public async show({ params }: HttpContextContract) {
         return Vehicle.query().where("id",params.id)
     }
+    //Update
+    public async update({ params, request }: HttpContextContract) {
+        const body = request.body();
+        const theVehicle: Vehicle = await Vehicle.findOrFail(params.id);
+        theVehicle.driver_id = body.driver_id;
+        theVehicle.model = body.model;
+        theVehicle.capacity = body.capacity;
+        theVehicle.name = body.name;
+        theVehicle.color = body.color;
+        theVehicle.velocity = body.velocity;
+        theVehicle.status = body.status;
+
+        //Guardar en la base de datos el registro actualizados
+        await theVehicle.save();
+
+        return theVehicle;
+    }
+
+
+    //Delete
+    public async destroy({ params, response }: HttpContextContract) {
+        const theVehicle: Vehicle = await Vehicle.findOrFail(params.id);
+        response.status(204);
+        return theVehicle.delete();
+    }
 }
