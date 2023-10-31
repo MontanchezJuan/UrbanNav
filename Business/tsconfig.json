@@ -1,13 +1,17 @@
 {
   "extends": "adonis-preset-ts/tsconfig.json",
   "include": [
-    "**/*"
+    "./**/*"
   ],
+  "files": ["./resources/assets/js/app.ts"],
   "exclude": [
     "node_modules",
     "build"
   ],
   "compilerOptions": {
+    "target": "es2017",
+    "module": "CommonJS",
+    "esModuleInterop": true,
     "outDir": "build",
     "rootDir": "./",
     "sourceMap": true,
