@@ -13,12 +13,12 @@ public class WebConfig implements WebMvcConfigurer {
     private SecurityInterceptor securityInterceptor;
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        /*registry.addInterceptor(securityInterceptor)
+        registry.addInterceptor(securityInterceptor)
                 .addPathPatterns("/api/**")
                 .excludePathPatterns("/api/public/**");
                 // Asegúrate de que las rutas sean las correctas
 
-         */
+         
     }
 
 
