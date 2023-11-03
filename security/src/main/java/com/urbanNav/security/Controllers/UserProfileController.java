@@ -48,7 +48,7 @@ public class UserProfileController {
         UserProfile current = this.profileRepository.findById(id).orElse(null);
         if (current != null) {
             current.setName(profile.getName());
-            current.setLastName(profile.getName());
+            current.setLastName(profile.getLastName());
             current.setBirthday(profile.getBirthday());            
             current.setBackgroundImage(profile.getBackgroundImage());
             current.setProfilePhoto(profile.getProfilePhoto());
