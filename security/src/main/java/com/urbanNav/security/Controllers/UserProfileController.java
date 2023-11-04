@@ -20,36 +20,36 @@ import com.urbanNav.security.Repositories.UserProfileRepository;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/profile")
+@RequestMapping("/profiles")
 public class UserProfileController {
     @Autowired
     private UserProfileRepository profileRepository;
 
     @GetMapping("")
-    public List<UserProfile> index(){
-        return this.profileRepository.findAll();    
+    public List<UserProfile> index() {
+        return this.profileRepository.findAll();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public UserProfile store(@RequestBody UserProfile userProfile){
+    public UserProfile store(@RequestBody UserProfile userProfile) {
         return this.profileRepository.save(userProfile);
     }
 
     @GetMapping("{id}")
-    public UserProfile show(@PathVariable String id){
+    public UserProfile show(@PathVariable String id) {
         UserProfile profile = this.profileRepository.findById(id).orElse(null);
         return profile;
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PutMapping("{id}")
-    public UserProfile update(@PathVariable String id, @RequestBody UserProfile profile){
+    public UserProfile update(@PathVariable String id, @RequestBody UserProfile profile) {
         UserProfile current = this.profileRepository.findById(id).orElse(null);
         if (current != null) {
             current.setName(profile.getName());
             current.setLastName(profile.getLastName());
-            current.setBirthday(profile.getBirthday());            
+            current.setBirthday(profile.getBirthday());
             current.setBackgroundImage(profile.getBackgroundImage());
             current.setProfilePhoto(profile.getProfilePhoto());
             current.setNumberPhone(profile.getNumberPhone());
@@ -60,9 +60,9 @@ public class UserProfileController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
-    public void destroy(@PathVariable String id){
+    public void destroy(@PathVariable String id) {
         UserProfile profile = this.profileRepository.findById(id).orElse(null);
-        if (profile != null ) {
+        if (profile != null) {
             this.profileRepository.delete(profile);
         }
     }

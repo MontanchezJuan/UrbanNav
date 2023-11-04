@@ -10,10 +10,9 @@ import com.urbanNav.security.Repositories.RoleRepository;
 import com.urbanNav.security.Repositories.PermissionRepository;
 import java.util.List;
 
-
 @CrossOrigin
 @RestController
-@RequestMapping("api/role")
+@RequestMapping("roles")
 
 public class RolesController {
     @Autowired
@@ -22,18 +21,20 @@ public class RolesController {
     private PermissionRepository thePermissionRepository;
 
     @GetMapping("")
-    public List<Role> index(){
+    public List<Role> index() {
         return this.theRoleRepository.findAll();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
-    public Role store(@RequestBody Role newRole){
-        return this.theRoleRepository.save(newRole);}
+    @PostMapping("")
+    public Role store(@RequestBody Role newRole) {
+
+        return this.theRoleRepository.save(newRole);
+    }
 
     @GetMapping("{id}")
-    public Role show(@PathVariable String id){
-        Role theRole=this.theRoleRepository
+    public Role show(@PathVariable String id) {
+        Role theRole = this.theRoleRepository
                 .findById(id)
                 .orElse(null);
         return theRole;
@@ -61,23 +62,27 @@ public class RolesController {
     }
 
     @PutMapping("role/{role_id}/permission/{permission_id}")
-    public Role addPermissions(@PathVariable String id, @RequestBody String idPermission){
-        Role theActualRole = this.theRoleRepository.findById(id).orElse(null); //Verifica que el role exista en la bd
-        Permission theActualPermission = this.thePermissionRepository.findById(id).orElse(null); // verifica que el permission exista en la bd
-        if (theActualRole != null && theActualPermission != null){
+    public Role addPermissions(@PathVariable String role_id, @PathVariable String permission_id) {
+        Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null); // Verifica que el role exista en la
+                                                                                    // bd
+        Permission theActualPermission = this.thePermissionRepository.findById(permission_id).orElse(null); // verifica
+                                                                                                            // que el
+        // permission exista en
+        // la bd
+        if (theActualRole != null && theActualPermission != null) {
             theActualRole.addPermission(theActualPermission); // añade el array de permission al role
             return this.theRoleRepository.save(theActualRole); // guarda
-        }else{
+        } else {
             return null;
         }
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("role/{role_id}/permission/{permission_id}")
-    public void removeRolePermission(@PathVariable String id){
-        Role theActualRole = this.theRoleRepository.findById(id).orElse(null);
-        Permission theActualPermission = thePermissionRepository.findById(id).orElse(null);
-        if (theActualRole != null){
+    public void removeRolePermission(@PathVariable String role_id, @PathVariable String permission_id) {
+        Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
+        Permission theActualPermission = thePermissionRepository.findById(permission_id).orElse(null);
+        if (theActualRole != null) {
             theActualRole.removePermission(theActualPermission);
             this.theRoleRepository.save(theActualRole);
         }

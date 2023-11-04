@@ -15,8 +15,10 @@ public class User {
     private String password;
     @DBRef
     private Role role;
+    @DBRef
+    private CreditCard[] creditCards;
 
-    public User(){
+    public User() {
     }
 
     public User(String name, String email, String password) {
@@ -28,6 +30,7 @@ public class User {
     public String get_id() {
         return _id;
     }
+
     public String getName() {
         return name;
     }

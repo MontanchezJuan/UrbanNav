@@ -7,25 +7,26 @@ import java.util.List;
 import java.util.Arrays;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document()
 public class Role {
     @Id
-    private  String _id;
+    private String _id;
     private String name;
-    private  String description;
+    private String description;
+    @DBRef
     private Permission[] totalPermissions;
+
+    public Role() {
+    }
 
     public Role(String name, String description, Permission[] totalPermissions) {
         this.name = name;
         this.description = description;
         this.totalPermissions = totalPermissions;
-    }
-    public Role(String name, String description) {
-        this.name = name;
-        this.description = description;
     }
 
     public String get_id() {
@@ -64,28 +65,28 @@ public class Role {
         } else {
             // Crea un nuevo array con una longitud mayor para agregar el nuevo permiso
             Permission[] newPermissions = new Permission[totalPermissions.length + 1];
-            
+
             // Copia los permisos existentes al nuevo array
             System.arraycopy(totalPermissions, 0, newPermissions, 0, totalPermissions.length);
-            
+
             // Agrega el nuevo permiso al final del nuevo array
             newPermissions[totalPermissions.length] = permission;
-            
+
             // Asigna el nuevo array a totalPermissions
             totalPermissions = newPermissions;
         }
     }
 
     public void removePermission(Permission permissionToRemove) {
-    if (totalPermissions == null) {
-        return; // No hay permisos para eliminar
-    }
+        if (totalPermissions == null) {
+            return; // No hay permisos para eliminar
+        }
 
-    List<Permission> permissionList = new ArrayList<>(Arrays.asList(totalPermissions));
-    
-    if (permissionList.remove(permissionToRemove)) {
-        // El permiso fue encontrado y eliminado
-        totalPermissions = permissionList.toArray(new Permission[0]);
+        List<Permission> permissionList = new ArrayList<>(Arrays.asList(totalPermissions));
+
+        if (permissionList.remove(permissionToRemove)) {
+            // El permiso fue encontrado y eliminado
+            totalPermissions = permissionList.toArray(new Permission[0]);
+        }
     }
-}
 }
