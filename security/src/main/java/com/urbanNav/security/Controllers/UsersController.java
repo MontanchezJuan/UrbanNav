@@ -15,10 +15,9 @@ import com.urbanNav.security.Services.JwtService;
 import java.io.IOException;
 import java.util.List;
 
-
 @CrossOrigin
 @RestController
-@RequestMapping("api/users")
+@RequestMapping("/users")
 public class UsersController {
 
     @Autowired
@@ -34,12 +33,12 @@ public class UsersController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
+    @PostMapping("")
     public User store(@RequestBody User newUser) {
-        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword())); //nueva contraseña del usuario encriptada
+        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword())); // nueva contraseña del usuario
+                                                                                       // encriptada
         return this.theUserRepository.save(newUser);
     }
-
 
     @PutMapping("{id}")
     public User udpate(@PathVariable String id, @RequestBody User theNewUser) {
@@ -64,17 +63,17 @@ public class UsersController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PutMapping("{user_id}/role/{role_id}")
+    @PutMapping("user/{user_id}/role/{role_id}")
     public User matchUserRole(@PathVariable String user_id,
-                              @PathVariable String role_id) {
+            @PathVariable String role_id) {
         User theActualUSer = this.theUserRepository.findById(user_id)
                 .orElse(null);
         Role theActualRole = this.theRoleRepository.findById(role_id)
                 .orElse(null);
-        if(theActualUSer!=null && theActualRole!=null) {
+        if (theActualUSer != null && theActualRole != null) {
             theActualUSer.setRole(theActualRole);
             return this.theUserRepository.save(theActualUSer);
-        }else{
+        } else {
             return null;
         }
     }
@@ -84,25 +83,26 @@ public class UsersController {
     public User unMatchUserRole(@PathVariable String user_id) {
         User theActualUSer = this.theUserRepository.findById(user_id)
                 .orElse(null);
-        if(theActualUSer!=null) {
+        if (theActualUSer != null) {
             theActualUSer.setRole(null);
             return this.theUserRepository.save(theActualUSer);
-        }else{
+        } else {
             return null;
         }
     }
 
     @PostMapping("/login")
     public String login(@RequestBody User theUser,
-                        final HttpServletResponse response)throws IOException {
+            final HttpServletResponse response) throws IOException {
         String token = "";
         User actualUser = this.theUserRepository.getUserByEmail(theUser.getEmail());
-        if(actualUser!=null && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))){
-            //Generar token
+        if (actualUser != null
+                && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))) {
+            // Generar token
             JwtService myJWTService = new JwtService();
             token = myJWTService.generateToken(actualUser);
-        }else{
-            //manejar el problema
+        } else {
+            // manejar el problema
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         }
         return token;

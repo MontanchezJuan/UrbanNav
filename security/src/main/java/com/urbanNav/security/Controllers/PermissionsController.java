@@ -11,7 +11,7 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/permissions")
+@RequestMapping("permissions")
 public class PermissionsController {
     @Autowired
     private PermissionRepository thePermissionRepository;
@@ -22,7 +22,7 @@ public class PermissionsController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping
+    @PostMapping("")
     public Permission store(@RequestBody Permission newPermission) {
         return this.thePermissionRepository.save(newPermission);
     }
@@ -54,7 +54,5 @@ public class PermissionsController {
             this.thePermissionRepository.delete(thePermission);
         }
     }
-
-    
 
 }
