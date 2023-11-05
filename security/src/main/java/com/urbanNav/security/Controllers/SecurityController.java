@@ -1,9 +1,12 @@
 package com.urbanNav.security.Controllers;
 
+import com.urbanNav.security.Models.Permission;
 import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
 import com.urbanNav.security.Services.JwtService;
+import com.urbanNav.security.Services.ValidatorsService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +16,7 @@ import java.io.IOException;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/public/security")
+@RequestMapping("/security")
 public class SecurityController {
     @Autowired
     private UserRepository theUserRepository;
@@ -21,7 +24,8 @@ public class SecurityController {
     private JwtService jwtService;
     @Autowired
     private EncryptionService encryptionService;
-    private static final String BEARER_PREFIX = "Bearer ";
+    @Autowired
+    private ValidatorsService validatorService;
 
     // Método login
     @PostMapping("login")
@@ -43,20 +47,16 @@ public class SecurityController {
     // Método reset pass
     @GetMapping("token-validation")
     public User tokenValidation(final HttpServletRequest request) {
-        User theUser = null;
-        String authorizationHeader = request.getHeader("Authorization");
-        System.out.println("Header " + authorizationHeader);
-        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
-            String token = authorizationHeader.substring(BEARER_PREFIX.length());
-            System.out.println("Bearer Token: " + token);
-            User theUserFromToken = jwtService.getUserFromToken(token);
-            if (theUserFromToken != null) {
-                theUser = this.theUserRepository.findById(theUserFromToken.get_id())
-                        .orElse(null);
-                theUser.setPassword("");
-            }
-        }
+        User theUser = this.validatorService.getUser(request);
         return theUser;
+    }
+
+    @PostMapping("permissions-validation")
+    public boolean permissionsValidation(final HttpServletRequest request, @RequestBody Permission thePermission) {
+        System.out.println(thePermission.toString());
+        boolean success = this.validatorService.validationRolePermission(request, thePermission.getRoute(),
+                thePermission.getMethod());
+        return success;
     }
 
 }

@@ -1,6 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, HasMany, column, hasMany, hasOne } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, HasMany, HasOne, column, hasMany, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import Trip from './Trip'
+import License from './License'
+import Vehicle from './Vehicle'
 
 export default class Driver extends BaseModel {
   @column({ isPrimary: true })
@@ -16,18 +18,18 @@ export default class Driver extends BaseModel {
   public status: number
 
   // relacion 1 a 1 con licencia
-  /**
-   * @hasOne(() => License,{
-   * foreignkey: "id_driver"})
-   * license : HasOne<typeof License>
-   */
+
+  @hasOne(() => License, {
+    foreignKey: 'id_driver',
+  })
+  license: HasOne<typeof License>
 
   // relacion 1 a N con vehiculos
-  /**
-   * @hasMany(() => Vehicle,{
-   * foreignkey: "id_driver"})
-   * vehicles : HasMany<typeof Vehicle>
-   */
+
+  @hasMany(() => Vehicle, {
+    foreignKey: 'id_driver',
+  })
+  vehicles: HasMany<typeof Vehicle>
 
   @hasMany(() => Trip, {
     foreignKey: 'driver_id',

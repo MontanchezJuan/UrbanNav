@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import Service from './Service'
 
 export default class Bill extends BaseModel {
   @column({ isPrimary: true })
@@ -7,6 +8,10 @@ export default class Bill extends BaseModel {
 
   @column()
   public service_id: number
+  @belongsTo(() => Service, {
+    foreignKey: 'service_id',
+  })
+  service: BelongsTo<typeof Service>
 
   @column()
   public credit_card_id: string
