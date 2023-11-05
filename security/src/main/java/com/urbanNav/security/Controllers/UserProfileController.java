@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Models.UserProfile;
 import com.urbanNav.security.Repositories.UserProfileRepository;
+import com.urbanNav.security.Repositories.UserRepository;
 
 @CrossOrigin
 @RestController
@@ -24,6 +26,7 @@ import com.urbanNav.security.Repositories.UserProfileRepository;
 public class UserProfileController {
     @Autowired
     private UserProfileRepository profileRepository;
+    @Autowired UserRepository userRepository;
 
     @GetMapping("")
     public List<UserProfile> index() {
@@ -32,7 +35,7 @@ public class UserProfileController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public UserProfile store(@RequestBody UserProfile userProfile) {
+    public UserProfile store(@RequestBody UserProfile userProfile) {        
         return this.profileRepository.save(userProfile);
     }
 
@@ -65,5 +68,26 @@ public class UserProfileController {
         if (profile != null) {
             this.profileRepository.delete(profile);
         }
+    }
+
+    @PutMapping("{profile_id}/user/{user_id}")
+    public UserProfile match(@PathVariable String profile_id, @PathVariable String user_id){
+        UserProfile profile = this.profileRepository.findById(profile_id).orElse(null);
+        User user = this.userRepository.findById(user_id).orElse(null);
+
+        if (user != null && profile != null) {
+            profile.setUser(user);
+            return this.profileRepository.save(profile);
+        }else{
+            return null;
+        }
+    }
+
+    @PutMapping("{profile_id}/user")
+    public UserProfile unmatch(@PathVariable String profile_id, @PathVariable String user_id){
+        UserProfile profile = this.profileRepository.findById(profile_id).orElse(null);
+        profile.setUser(null);
+
+        return this.profileRepository.save(profile);
     }
 }

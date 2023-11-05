@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.urbanNav.security.Models.CreditCard;
 import com.urbanNav.security.Repositories.CreditCardRepository;
+import com.urbanNav.security.Services.EncryptionService;
 
 @CrossOrigin
 @RestController
@@ -26,14 +27,20 @@ public class CreditCardController {
     @Autowired
     private CreditCardRepository cardRepository;
 
+    @Autowired
+    private EncryptionService encryp;
+
     @GetMapping("")
-    public List<CreditCard> indx() {
+    public List<CreditCard> index() {
         return this.cardRepository.findAll();
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     public CreditCard store(@RequestBody CreditCard card) {
+        card.setCardCVV(encryp.convertirSHA256(card.getCardCVV()));
+        card.setCardNumber(encryp.convertirSHA256(card.getCardNumber()));
+        card.setExpiryDate(encryp.convertirSHA256(card.getExpiryDate()));
         return this.cardRepository.save(card);
     }
 
