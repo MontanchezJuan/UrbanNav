@@ -1,7 +1,6 @@
 package com.urbanNav.security.Models;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -17,10 +16,7 @@ public class CreditCard {
     private String cardNumber;
     private String cardCVV;
     private String expiryDate;
-    private double balance;
-
-    @DBRef
-    private String[] userId;
+    private double balance; 
 
     CreditCard(){}
 
