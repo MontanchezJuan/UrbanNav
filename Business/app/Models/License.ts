@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import Driver from './Driver'
 
 export default class License extends BaseModel {
   @column({ isPrimary: true })
@@ -7,7 +8,10 @@ export default class License extends BaseModel {
 
   @column()
   public driver_id: number
-
+  @belongsTo(() => Driver, {
+    foreignKey: 'driver_id',
+  })
+  driver: BelongsTo<typeof Driver>
   @column()
   public expiration_date: DateTime
 
