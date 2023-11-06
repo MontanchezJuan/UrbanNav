@@ -32,6 +32,14 @@ public class UsersController {
         return this.theUserRepository.findAll();
     }
 
+    @GetMapping("{id}")
+    public User show(@PathVariable String id) {
+        User theUser = this.theUserRepository
+                .findById(id)
+                .orElse(null);
+        return theUser;
+    }
+
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     public User store(@RequestBody User newUser) {

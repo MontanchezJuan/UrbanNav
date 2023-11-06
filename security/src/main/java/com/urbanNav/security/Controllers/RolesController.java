@@ -76,6 +76,7 @@ public class RolesController {
             return null;
         }
     }
+    
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("role/{role_id}/permission/{permission_id}")
