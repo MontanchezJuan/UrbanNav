@@ -11,6 +11,7 @@ import {
 } from '@ioc:Adonis/Lucid/Orm'
 import Driver from './Driver'
 import Service from './Service'
+import TripPoint from './TripPoint'
 
 export default class Trip extends BaseModel {
   @column({ isPrimary: true })
@@ -40,17 +41,17 @@ export default class Trip extends BaseModel {
   @belongsTo(() => Driver, {
     foreignKey: 'driver_id',
   })
-  driver: BelongsTo<typeof Driver>
+  public driver: BelongsTo<typeof Driver>
 
   @hasOne(() => Service, {
     foreignKey: 'trip_id',
   })
-  service: HasOne<typeof Service>
+  public service: HasOne<typeof Service>
 
-  // @hasMany(() => TripPoint,{
-  //   foreignKey:"trip_id",
-  // })
-  // tripPoints: HasMany<typeof TripPoint>
+  @hasMany(() => TripPoint, {
+    foreignKey: 'trip_id',
+  })
+  public tripPoint: HasMany<typeof TripPoint>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

@@ -23,10 +23,10 @@ import './routes/driver.ts'
 import './routes/service.ts'
 import './routes/trip.ts'
 import './routes/commentandrating.ts'
-import './routes/bill.js'
-import './routes/customer.js'
-import './routes/license.js'
-import './routes/vehicle.js'
+import './routes/bill.ts'
+import './routes/customer.ts'
+import './routes/license.ts'
+import './routes/vehicle.ts'
 
 Route.get('/', async () => {
   return { hello: 'world' }

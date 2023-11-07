@@ -1,33 +1,30 @@
 import { DateTime } from 'luxon'
 import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
-import Service from './Service'
+import Customer from './Customer'
 
-export default class CommentandRating extends BaseModel {
+export default class Contact extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
   @column()
-  public service_id: number
-
-  @belongsTo(() => Service, {
-    foreignKey: 'service_id',
-  })
-  public service: BelongsTo<typeof Service>
+  public name: string
 
   @column()
-  public sender_id: number
+  public email: string
 
   @column()
-  public receptor_id: number
+  public phone_number: string
 
   @column()
-  public description: string
-
-  @column()
-  public rating: number
+  public is_emergy_contact: boolean
 
   @column()
   public status: number
+
+  @belongsTo(() => Customer, {
+    foreignKey: 'customer_id',
+  })
+  public customer: BelongsTo<typeof Customer>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
