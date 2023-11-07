@@ -36,11 +36,9 @@ public class ValidatorsService {
             if (theRole != null && thePermission != null) {
                 for (Permission permission : theRole.getTotalPermissions()) {
                     if (permission.equals(thePermission)) {
-                        success = true;
+                        return success = true;
                     }
                 }
-            } else {
-                success = false;
             }
         }
         return success;
