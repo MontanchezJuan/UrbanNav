@@ -1,19 +1,17 @@
 package com.urbanNav.security.Controllers;
 
-import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import com.urbanNav.security.Models.Role;
 import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.RoleRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
-import com.urbanNav.security.Services.JwtService;
-
-import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
+
 
 @CrossOrigin
 @RestController
@@ -43,8 +41,9 @@ public class UsersController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
     public User store(@RequestBody User newUser) {
-        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword())); // nueva contraseña del usuario
-                                                                                       // encriptada
+        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
+         // nueva contraseña del usuario
+         newUser.setCreated_at(LocalDateTime.now());                                                                              // encriptada
         return this.theUserRepository.save(newUser);
     }
 
@@ -55,6 +54,7 @@ public class UsersController {
             theActualUSer.setName(theNewUser.getName());
             theActualUSer.setEmail(theNewUser.getEmail());
             theActualUSer.setPassword(encryptionService.convertirSHA256(theNewUser.getPassword()));
+            theActualUSer.setStatus(theNewUser.getStatus());
             return this.theUserRepository.save(theActualUSer);
         } else {
             return null;
@@ -97,22 +97,5 @@ public class UsersController {
         } else {
             return null;
         }
-    }
-
-    @PostMapping("/login")
-    public String login(@RequestBody User theUser,
-            final HttpServletResponse response) throws IOException {
-        String token = "";
-        User actualUser = this.theUserRepository.getUserByEmail(theUser.getEmail());
-        if (actualUser != null
-                && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))) {
-            // Generar token
-            JwtService myJWTService = new JwtService();
-            token = myJWTService.generateToken(actualUser);
-        } else {
-            // manejar el problema
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-        return token;
     }
 }
