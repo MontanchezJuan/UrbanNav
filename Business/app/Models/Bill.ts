@@ -14,7 +14,7 @@ export default class Bill extends BaseModel {
   service: BelongsTo<typeof Service>
 
   @column()
-  public credit_card_id: string
+  public credict_card_id: string
 
   @column()
   public status: number

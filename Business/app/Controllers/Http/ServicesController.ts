@@ -9,7 +9,7 @@ export default class ServicesController {
       .preload('trip')
       .preload('customer')
       .preload('bill')
-      .preload('commentsAndRatings')
+      //.preload('commentsAndRatings')
       .paginate(page, perPage)
     // metodo para retornar a todos los conductores
     // falta precargar los vehiculos y la licensia
@@ -23,7 +23,7 @@ export default class ServicesController {
       .preload('trip')
       .preload('customer')
       .preload('bill')
-      .preload('commentsAndRatings')
+    //.preload('commentsAndRatings')
     // metodo para retornar a un conductor con toda su informacion asociada
     //falta precargar los vehiculos y la licensia
   }

@@ -3,6 +3,7 @@ import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Service from './Service'
 
 export default class CommentandRating extends BaseModel {
+  public static table = 'commentsandratings'
   @column({ isPrimary: true })
   public id: number
 

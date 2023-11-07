@@ -11,7 +11,7 @@ export default class CostumersController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 20)
-    let customers: Customer[] = await Customer.query().paginate(page, perPage)
+    let customers: Customer[] = await Customer.query().preload('services').paginate(page, perPage)
     return customers
   }
 

@@ -20,14 +20,14 @@ export default class Driver extends BaseModel {
   // relacion 1 a 1 con licencia
 
   @hasOne(() => License, {
-    foreignKey: 'id_driver',
+    foreignKey: 'driver_id',
   })
   license: HasOne<typeof License>
 
   // relacion 1 a N con vehiculos
 
   @hasMany(() => Vehicle, {
-    foreignKey: 'id_driver',
+    foreignKey: 'driver_id',
   })
   vehicles: HasMany<typeof Vehicle>
 

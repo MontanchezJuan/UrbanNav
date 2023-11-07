@@ -18,10 +18,10 @@ export default class Trip extends BaseModel {
   public id: number
 
   @column()
-  public origin: number
+  public origin_id: number
 
   @column()
-  public destination: number
+  public destination_id: number
 
   @column()
   public driver_id: number
