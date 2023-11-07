@@ -2,13 +2,20 @@ package com.urbanNav.security.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.urbanNav.security.Models.Permission;
 import com.urbanNav.security.Models.Role;
 import com.urbanNav.security.Repositories.RoleRepository;
+
+import java.util.Arrays;
+
+
 import com.urbanNav.security.Repositories.PermissionRepository;
 import java.util.List;
+
+
 
 @CrossOrigin
 @RestController
@@ -62,20 +69,25 @@ public class RolesController {
     }
 
     @PutMapping("role/{role_id}/permission/{permission_id}")
-    public Role addPermissions(@PathVariable String role_id, @PathVariable String permission_id) {
-        Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null); // Verifica que el role exista en la
-                                                                                    // bd
-        Permission theActualPermission = this.thePermissionRepository.findById(permission_id).orElse(null); // verifica
-                                                                                                            // que el
-        // permission exista en
-        // la bd
+    public ResponseEntity<String> addPermissions(@PathVariable String role_id, @PathVariable String permission_id) {
+        Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
+        Permission theActualPermission = this.thePermissionRepository.findById(permission_id).orElse(null);
+    
         if (theActualRole != null && theActualPermission != null) {
-            theActualRole.addPermission(theActualPermission); // añade el array de permission al role
-            return this.theRoleRepository.save(theActualRole); // guarda
+            if (Arrays.stream(theActualRole.getTotalPermissions())
+                .anyMatch(existingPermission -> existingPermission.get_id().equals(theActualPermission.get_id()))) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Este permiso ya existe en este rol.");
+            } else {
+                theActualRole.addPermission(theActualPermission);
+                this.theRoleRepository.save(theActualRole);
+                return ResponseEntity.status(HttpStatus.OK).body("Permiso agregado con éxito.");
+            }
         } else {
-            return null;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol o permiso no encontrados.");
         }
     }
+    
+
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("role/{role_id}/permission/{permission_id}")
