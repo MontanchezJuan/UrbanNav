@@ -1,9 +1,13 @@
 package com.urbanNav.security.Models;
 
 import lombok.Data;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
+
 
 @Data
 @Document()
@@ -13,6 +17,9 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private int status;
+    private LocalDateTime created_at;
+    private String twofactor_code;
     @DBRef
     private Role role;
     @DBRef
@@ -21,10 +28,12 @@ public class User {
     public User() {
     }
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, int status, String twofactor_code) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.status = status;
+        this.twofactor_code = twofactor_code;
     }
 
     public String get_id() {
@@ -65,5 +74,30 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreated_at() {
+    return created_at;
+    }
+
+    public void setCreated_at(LocalDateTime created_at) {
+    this.created_at = created_at;
+    }
+
+
+    public String getTwofactor_code() {
+        return twofactor_code;
+    }
+
+    public void setTwofactor_code(String twofactor_code) {
+        this.twofactor_code = twofactor_code;
     }
 }

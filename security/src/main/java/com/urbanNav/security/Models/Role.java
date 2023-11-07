@@ -58,34 +58,34 @@ public class Role {
     }
 
     public void addPermission(Permission permission) {
-        // Primero, verifica si totalPermissions es nulo
         if (totalPermissions == null) {
             totalPermissions = new Permission[1];
             totalPermissions[0] = permission;
         } else {
             // Crea un nuevo array con una longitud mayor para agregar el nuevo permiso
             Permission[] newPermissions = new Permission[totalPermissions.length + 1];
-
+    
             // Copia los permisos existentes al nuevo array
             System.arraycopy(totalPermissions, 0, newPermissions, 0, totalPermissions.length);
-
+    
             // Agrega el nuevo permiso al final del nuevo array
             newPermissions[totalPermissions.length] = permission;
-
+    
             // Asigna el nuevo array a totalPermissions
             totalPermissions = newPermissions;
         }
     }
+    
+    
 
     public void removePermission(Permission permissionToRemove) {
         if (totalPermissions == null) {
-            return; // No hay permisos para eliminar
+            return; 
         }
 
         List<Permission> permissionList = new ArrayList<>(Arrays.asList(totalPermissions));
 
         if (permissionList.remove(permissionToRemove)) {
-            // El permiso fue encontrado y eliminado
             totalPermissions = permissionList.toArray(new Permission[0]);
         }
     }

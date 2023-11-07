@@ -20,9 +20,8 @@ public class UserProfile {
     private Date birthday;
     private String backgroundImage;
     private String numberPhone;
-
     @DBRef
-    private String userId;
+    private User user;
 
     UserProfile(){}
 
@@ -72,5 +71,13 @@ public class UserProfile {
 
     public void setNumberPhone(String numberPhone) {
         this.numberPhone = numberPhone;
+    }
+
+    public User getUser(){
+        return this.user;
+    }
+
+    public void setUser(User user){
+        this.user = user;
     }
 }
