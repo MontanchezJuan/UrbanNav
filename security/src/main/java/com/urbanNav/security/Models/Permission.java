@@ -13,6 +13,9 @@ public class Permission {
     private String method;
     private String description;
 
+    public Permission() {
+    }
+
     public Permission(String route, String method, String description) {
         this.route = route;
         this.method = method;
@@ -47,4 +50,3 @@ public class Permission {
         this.description = description;
     }
 }
-

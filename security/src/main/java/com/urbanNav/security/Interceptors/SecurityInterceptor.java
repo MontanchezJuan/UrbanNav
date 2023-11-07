@@ -20,7 +20,8 @@ public class SecurityInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler)
             throws Exception {
-        boolean success = this.validatorService.validationRolePermission(request, request.getRequestURI(),
+        boolean success = this.validatorService.validationRolePermission(request,
+                request.getRequestURI(),
                 request.getMethod());
         return success;
     }

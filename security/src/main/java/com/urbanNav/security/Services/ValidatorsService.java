@@ -20,8 +20,7 @@ public class ValidatorsService {
     private PermissionRepository thePermissionRepository;
     @Autowired
     private UserRepository theUserRepository;
-    @Autowired
-    // private RolePermissionRespository theRolePermissionRepository;
+
     private static final String BEARER_PREFIX = "Bearer ";
 
     public boolean validationRolePermission(HttpServletRequest request, String url, String method) {
@@ -29,10 +28,10 @@ public class ValidatorsService {
         User theUser = this.getUser(request);
         if (theUser != null) {
             Role theRole = theUser.getRole();
-            System.out.println("Antes URL " + url + " metodo " + method);
             url = url.replaceAll("[0-9a-fA-F]{24}", "?");
-            System.out.println("URL " + url + " metodo " + method);
-            Permission thePermission = this.thePermissionRepository.getPermission(url, method);
+            Permission thePermission = thePermissionRepository.getPermission(url,
+                    method);
+
             if (theRole != null && thePermission != null) {
                 for (Permission permission : theRole.getTotalPermissions()) {
                     if (permission.equals(thePermission)) {
@@ -42,17 +41,24 @@ public class ValidatorsService {
             } else {
                 success = false;
             }
+
+        }
+        if (success == false) {
+            System.out.println("no tiene este permiso");
         }
         return success;
+    }
+
+    public String getUrlString(String url) {
+        String newUrl = "";
+        return newUrl;
     }
 
     public User getUser(final HttpServletRequest request) {
         User theUser = null;
         String authorizationHeader = request.getHeader("Authorization");
-        System.out.println("Header " + authorizationHeader);
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
             String token = authorizationHeader.substring(BEARER_PREFIX.length());
-            System.out.println("Bearer Token: " + token);
             User theUserFromToken = jwtService.getUserFromToken(token);
             if (theUserFromToken != null) {
                 theUser = this.theUserRepository.findById(theUserFromToken.get_id())
