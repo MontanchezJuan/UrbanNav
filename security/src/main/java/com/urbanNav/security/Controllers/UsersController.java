@@ -8,9 +8,7 @@ import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.RoleRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
-import java.time.LocalDateTime;
 import java.util.List;
-
 
 @CrossOrigin
 @RestController
@@ -35,15 +33,6 @@ public class UsersController {
                 .findById(id)
                 .orElse(null);
         return theUser;
-    }
-
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("")
-    public User store(@RequestBody User newUser) {
-        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
-         // nueva contraseña del usuario
-         newUser.setCreated_at(LocalDateTime.now());                                                                              // encriptada
-        return this.theUserRepository.save(newUser);
     }
 
     @PutMapping("{id}")

@@ -10,9 +10,12 @@ import com.urbanNav.security.Services.ValidatorsService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @CrossOrigin
 @RestController
@@ -20,10 +23,13 @@ import java.io.IOException;
 public class SecurityController {
     @Autowired
     private UserRepository theUserRepository;
+
     @Autowired
     private JwtService jwtService;
+
     @Autowired
     private EncryptionService encryptionService;
+
     @Autowired
     private ValidatorsService validatorService;
 
@@ -41,6 +47,21 @@ public class SecurityController {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         }
         return token;
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("sign-up")
+    public ResponseEntity<String> signUp(@RequestBody User newUser) {
+        User theActualUSer = this.theUserRepository.getUserByEmail(newUser.getEmail());
+
+        if (theActualUSer != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un usuario con este correo");
+        }
+
+        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
+        newUser.setCreated_at(LocalDateTime.now());
+        this.theUserRepository.save(newUser);
+        return ResponseEntity.status(HttpStatus.OK).body("Usuario agregado con éxito.");
     }
 
     // Método logout
