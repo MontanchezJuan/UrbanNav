@@ -1,18 +1,13 @@
 package com.urbanNav.security.Controllers;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
 import com.urbanNav.security.Models.Role;
 import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.RoleRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
-import com.urbanNav.security.Services.JwtService;
-
-import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin
@@ -91,20 +86,4 @@ public class UsersController {
         }
     }
 
-    @PostMapping("/login")
-    public String login(@RequestBody User theUser,
-            final HttpServletResponse response) throws IOException {
-        String token = "";
-        User actualUser = this.theUserRepository.getUserByEmail(theUser.getEmail());
-        if (actualUser != null
-                && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))) {
-            // Generar token
-            JwtService myJWTService = new JwtService();
-            token = myJWTService.generateToken(actualUser);
-        } else {
-            // manejar el problema
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-        }
-        return token;
-    }
 }

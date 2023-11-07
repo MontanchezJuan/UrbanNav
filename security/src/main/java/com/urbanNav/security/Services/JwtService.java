@@ -10,7 +10,6 @@ import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
 import java.security.Key;
 //import java.security.SignatureException;
 import java.util.Date;
@@ -20,10 +19,12 @@ import java.util.Map;
 @Service
 public class JwtService {
     @Value("${jwt.secret}")
-    private String secret; // Esta es la clave secreta que se utiliza para firmar el token. Debe mantenerse segura.
+    private String secret; // Esta es la clave secreta que se utiliza para firmar el token. Debe mantenerse
+                           // segura.
     @Value("${jwt.expiration}")
     private Long expiration; // Tiempo de expiración del token en milisegundos.
     private Key secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+
     public String generateToken(User theUser) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
@@ -40,26 +41,28 @@ public class JwtService {
                 .signWith(secretKey)
                 .compact();
     }
+
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claimsJws = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-// Verifica la expiración del token
+            // Verifica la expiración del token
             Date now = new Date();
             if (claimsJws.getBody().getExpiration().before(now)) {
                 return false;
             }
             return true;
         } catch (SignatureException ex) {
-// La firma del token es inválida
+            // La firma del token es inválida
             return false;
         } catch (Exception e) {
-// Otra excepción
+            // Otra excepción
             return false;
         }
     }
+
     public User getUserFromToken(String token) {
         try {
             Jws<Claims> claimsJws = Jwts.parserBuilder()
