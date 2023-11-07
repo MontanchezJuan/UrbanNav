@@ -7,4 +7,5 @@ Route.group(() => {
   Route.get('/commentsandratings/:id', 'CommentsandRatingsController.show')
   Route.put('/commentsandratings/:id', 'CommentsandRatingsController.update')
   Route.delete('/commentsandratings/:id', 'CommentsandRatingsController.destroy')
-}).middleware(['security'])
+})
+//.middleware(['security'])

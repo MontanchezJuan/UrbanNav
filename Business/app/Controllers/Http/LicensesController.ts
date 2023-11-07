@@ -11,7 +11,7 @@ export default class LicensesController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 20)
-    let licenses: License[] = await License.query().paginate(page, perPage)
+    let licenses: License[] = await License.query().preload('driver').paginate(page, perPage)
     return licenses
   }
 

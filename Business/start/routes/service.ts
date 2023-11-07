@@ -7,4 +7,5 @@ Route.group(() => {
   Route.get('/services/:id', 'ServicesController.show')
   Route.put('/services/:id', 'ServicesController.update')
   Route.delete('/services/:id', 'ServicesController.destroy')
-}).middleware(['security'])
+})
+//.middleware(['security'])

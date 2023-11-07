@@ -13,7 +13,11 @@ export default class DriversController {
     // retornar los conductores que cumplan ciertas condiciones
   }
   public async show({ params }: HttpContextContract) {
-    return await Driver.query().where('id', params.id).preload('trips')
+    return await Driver.query()
+      .where('id', params.id)
+      .preload('trips')
+      .preload('vehicles')
+      .preload('license')
     // metodo para retornar a un conductor con toda su informacion asociada
     //falta precargar los vehiculos y la licensia
   }
@@ -21,7 +25,8 @@ export default class DriversController {
     // metodo para retornar a un conductor con la informacion asociada necesaria en las condiciones
   }
   public async store({ request }: HttpContextContract) {
-    let body = request.body()
+    const body = request.body()
+    console.log(JSON.stringify(body))
     const driver = await Driver.create(body)
     return driver
     // metodo para crear un registro de conductor en la base de datos
