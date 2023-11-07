@@ -5,7 +5,8 @@ export default class TripsController {
   public async index({ request }: HttpContextContract) {
     const page = request.input('page', 1)
     const perPage = request.input('per_page', 20)
-    return await Trip.query().preload('driver').preload('service').paginate(page, perPage)
+    // eslint-disable-next-line prettier/prettier
+    return await Trip.query().preload('driver').preload('service').preload('tripPoint').paginate(page, perPage)
     // metodo para retornar a todos los conductores
     // falta precargar los vehiculos y la licensia
   }
@@ -37,7 +38,6 @@ export default class TripsController {
     trip.distance = body.distance
     trip.status = body.status
     return trip.save()
-
     //metodo para actualizar la informacion de un conductor
   }
   public async destroy({ params, response }: HttpContextContract) {

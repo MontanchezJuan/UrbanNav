@@ -33,22 +33,22 @@ export default class Service extends BaseModel {
   @belongsTo(() => Customer, {
     foreignKey: 'customer_id',
   })
-  customer: BelongsTo<typeof Customer>
+  public customer: BelongsTo<typeof Customer>
 
   @belongsTo(() => Trip, {
     foreignKey: 'trip_id',
   })
-  trip: BelongsTo<typeof Trip>
+  public trip: BelongsTo<typeof Trip>
 
   @hasOne(() => Bill, {
     foreignKey: 'service_id',
   })
-  bill: HasOne<typeof Bill>
+  public bill: HasOne<typeof Bill>
 
   @hasMany(() => CommentandRating, {
     foreignKey: 'service_id',
   })
-  commentsAndRatings: HasMany<typeof CommentandRating>
+  public commentsAndRatings: HasMany<typeof CommentandRating>
 
   @column()
   @column.dateTime({ autoCreate: true })
