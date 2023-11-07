@@ -26,7 +26,9 @@ import com.urbanNav.security.Repositories.UserRepository;
 public class UserProfileController {
     @Autowired
     private UserProfileRepository profileRepository;
-    @Autowired UserRepository userRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping("")
     public List<UserProfile> index() {
@@ -35,7 +37,7 @@ public class UserProfileController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public UserProfile store(@RequestBody UserProfile userProfile) {        
+    public UserProfile store(@RequestBody UserProfile userProfile) {
         return this.profileRepository.save(userProfile);
     }
 
@@ -71,20 +73,20 @@ public class UserProfileController {
     }
 
     @PutMapping("{profile_id}/user/{user_id}")
-    public UserProfile match(@PathVariable String profile_id, @PathVariable String user_id){
+    public UserProfile match(@PathVariable String profile_id, @PathVariable String user_id) {
         UserProfile profile = this.profileRepository.findById(profile_id).orElse(null);
         User user = this.userRepository.findById(user_id).orElse(null);
 
         if (user != null && profile != null) {
             profile.setUser(user);
             return this.profileRepository.save(profile);
-        }else{
+        } else {
             return null;
         }
     }
 
     @PutMapping("{profile_id}/user")
-    public UserProfile unmatch(@PathVariable String profile_id, @PathVariable String user_id){
+    public UserProfile unmatch(@PathVariable String profile_id, @PathVariable String user_id) {
         UserProfile profile = this.profileRepository.findById(profile_id).orElse(null);
         profile.setUser(null);
 
