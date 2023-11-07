@@ -6,18 +6,8 @@ export default class extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table
-        .integer('origin_id')
-        .unsigned()
-        .references('trip_points.id')
-        .onDelete('CASCADE')
-        .notNullable()
-      table
-        .integer('destination_id')
-        .unsigned()
-        .references('trip_points.id')
-        .onDelete('CASCADE')
-        .notNullable()
+      table.integer('origin_id').unsigned().notNullable()
+      table.integer('destination_id').unsigned().notNullable()
       table
         .integer('driver_id')
         .unsigned()
