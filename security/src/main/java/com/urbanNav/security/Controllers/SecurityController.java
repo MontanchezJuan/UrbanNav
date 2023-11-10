@@ -51,17 +51,22 @@ public class SecurityController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("sign-up")
-    public ResponseEntity<String> signUp(@RequestBody User newUser) {
-        User theActualUSer = this.theUserRepository.getUserByEmail(newUser.getEmail());
-
-        if (theActualUSer != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un usuario con este correo");
+    public ResponseEntity<?> signUp(@RequestBody User newUser) {
+        try {
+            User theActualUser = this.theUserRepository.getUserByEmail(newUser.getEmail());
+            if (theActualUser != null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un usuario con este correo");
+            } else {
+                newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
+                newUser.setCreated_at(LocalDateTime.now());
+                this.theUserRepository.save(newUser);
+                return ResponseEntity.status(HttpStatus.OK).body("Usuario agregado con éxito." + "\n" + newUser);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al intentar crear el usuario" + "\n" + e.toString());
         }
 
-        newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
-        newUser.setCreated_at(LocalDateTime.now());
-        this.theUserRepository.save(newUser);
-        return ResponseEntity.status(HttpStatus.OK).body("Usuario agregado con éxito.");
     }
 
     // Método logout

@@ -11,11 +11,7 @@ import com.urbanNav.security.Repositories.RoleRepository;
 
 import java.util.Arrays;
 
-
 import com.urbanNav.security.Repositories.PermissionRepository;
-import java.util.List;
-
-
 
 @CrossOrigin
 @RestController
@@ -28,75 +24,145 @@ public class RolesController {
     private PermissionRepository thePermissionRepository;
 
     @GetMapping("")
-    public List<Role> index() {
-        return this.theRoleRepository.findAll();
+    public ResponseEntity<?> index() {
+        try {
+            if (this.theRoleRepository.findAll() != null) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("listado de Roles" + "\n" + this.theRoleRepository.findAll());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No hay perfiles registrados");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al buscar perfiles" + "\n" + e.toString());
+        }
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public Role store(@RequestBody Role newRole) {
-
-        return this.theRoleRepository.save(newRole);
+    public ResponseEntity<?> store(@RequestBody Role newRole) {
+        try {
+            Role theActualRole = this.theRoleRepository.getRole(newRole.getName());
+            if (theActualRole != null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Ya existe un rol con este nombre");
+            } else {
+                this.theRoleRepository.save(theActualRole);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Rol agregado con éxito." + "\n" + theActualRole);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al intentar crear el rol" + "\n" + e.toString());
+        }
     }
 
     @GetMapping("{id}")
-    public Role show(@PathVariable String id) {
-        Role theRole = this.theRoleRepository
-                .findById(id)
-                .orElse(null);
-        return theRole;
+    public ResponseEntity<?> show(@PathVariable String id) {
+        try {
+            Role theRole = this.theRoleRepository
+                    .findById(id)
+                    .orElse(null);
+            if (theRole != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(theRole);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error en la busqueda del rol" + "\n" + e.toString());
+        }
     }
 
     @PutMapping("{id}")
-    public Role udpate(@PathVariable String id, @RequestBody Role theNewRole) {
-        Role theActualRole = this.theRoleRepository.findById(id).orElse(null);
-        if (theActualRole != null) {
-            theActualRole.setName(theNewRole.getName());
-            theActualRole.setDescription(theNewRole.getDescription());
-            return this.theRoleRepository.save(theActualRole);
-        } else {
-            return null;
+    public ResponseEntity<?> udpate(@PathVariable String id, @RequestBody Role theNewRole) {
+        try {
+            Role theRole = this.theRoleRepository.findById(id).orElse(null);
+            if (theRole != null) {
+                theRole.setName(theNewRole.getName());
+                theRole.setDescription(theNewRole.getDescription());
+                theRole.setStatus(theNewRole.getStatus());
+                this.theRoleRepository.save(theRole);
+                return ResponseEntity.status(HttpStatus.OK).body("Rol actualizado" + "\n" + theRole);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol a actualizar");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error en la actualizacion del rol" + "\n" + e.toString());
         }
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
-    public void destroy(@PathVariable String id) {
-        Role theActualRole = this.theRoleRepository.findById(id).orElse(null);
-        if (theActualRole != null) {
-            this.theRoleRepository.delete(theActualRole);
+    public ResponseEntity<?> destroy(@PathVariable String id) {
+        try {
+            Role theRole = this.theRoleRepository.findById(id).orElse(null);
+            if (theRole != null) {
+                this.theRoleRepository.delete(theRole);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Se elimino correctamente al perfil:" + "\n" + theRole);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al perfil a eliminar");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error en la eliminacion del perfil" + "\n" + e.toString());
         }
     }
 
     @PutMapping("role/{role_id}/permission/{permission_id}")
     public ResponseEntity<String> addPermissions(@PathVariable String role_id, @PathVariable String permission_id) {
-        Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
-        Permission theActualPermission = this.thePermissionRepository.findById(permission_id).orElse(null);
-    
-        if (theActualRole != null && theActualPermission != null) {
-            if (Arrays.stream(theActualRole.getTotalPermissions())
-                .anyMatch(existingPermission -> existingPermission.get_id().equals(theActualPermission.get_id()))) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Este permiso ya existe en este rol.");
+        try {
+            Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
+            Permission theActualPermission = this.thePermissionRepository.findById(permission_id).orElse(null);
+            if (theActualRole != null && theActualPermission != null) {
+                if (Arrays.stream(theActualRole.getTotalPermissions())
+                        .anyMatch(existingPermission -> existingPermission.get_id()
+                                .equals(theActualPermission.get_id()))) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Este permiso ya existe en este rol.");
+                } else {
+                    theActualRole.addPermission(theActualPermission);
+                    this.theRoleRepository.save(theActualRole);
+                    return ResponseEntity.status(HttpStatus.OK).body("Permiso agregado con éxito." + "\n"
+                            + theActualRole);
+                }
             } else {
-                theActualRole.addPermission(theActualPermission);
-                this.theRoleRepository.save(theActualRole);
-                return ResponseEntity.status(HttpStatus.OK).body("Permiso agregado con éxito.");
+                if (theActualRole == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado.");
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Permiso no encontrado.");
+                }
             }
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol o permiso no encontrados.");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al añadir el permiso al rol" + "\n" + e.toString());
         }
     }
-    
-
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("role/{role_id}/permission/{permission_id}")
-    public void removeRolePermission(@PathVariable String role_id, @PathVariable String permission_id) {
-        Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
-        Permission theActualPermission = thePermissionRepository.findById(permission_id).orElse(null);
-        if (theActualRole != null) {
-            theActualRole.removePermission(theActualPermission);
-            this.theRoleRepository.save(theActualRole);
+    public ResponseEntity<?> removeRolePermission(@PathVariable String role_id, @PathVariable String permission_id) {
+        try {
+            Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
+            Permission theActualPermission = thePermissionRepository.findById(permission_id).orElse(null);
+            if (theActualRole != null && theActualPermission != null) {
+                theActualRole.removePermission(theActualPermission);
+                this.theRoleRepository.save(theActualRole);
+                return ResponseEntity.status(HttpStatus.OK).body("Permiso removido con éxito." + "\n"
+                        + theActualRole);
+            } else {
+                if (theActualRole == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado.");
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Permiso no encontrado.");
+                }
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al remover el permiso al rol" + "\n" + e.toString());
         }
 
     }

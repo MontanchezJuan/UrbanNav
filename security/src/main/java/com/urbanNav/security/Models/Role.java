@@ -17,6 +17,7 @@ public class Role {
     private String _id;
     private String name;
     private String description;
+    private int status;
     @DBRef
     private Permission[] totalPermissions;
 
@@ -64,23 +65,21 @@ public class Role {
         } else {
             // Crea un nuevo array con una longitud mayor para agregar el nuevo permiso
             Permission[] newPermissions = new Permission[totalPermissions.length + 1];
-    
+
             // Copia los permisos existentes al nuevo array
             System.arraycopy(totalPermissions, 0, newPermissions, 0, totalPermissions.length);
-    
+
             // Agrega el nuevo permiso al final del nuevo array
             newPermissions[totalPermissions.length] = permission;
-    
+
             // Asigna el nuevo array a totalPermissions
             totalPermissions = newPermissions;
         }
     }
-    
-    
 
     public void removePermission(Permission permissionToRemove) {
         if (totalPermissions == null) {
-            return; 
+            return;
         }
 
         List<Permission> permissionList = new ArrayList<>(Arrays.asList(totalPermissions));
