@@ -31,7 +31,8 @@ public class UserProfileController {
     @GetMapping("")
     public ResponseEntity<?> index() {
         try {
-            if (this.theUserprofileRepository.findAll() != null) {
+            if (this.theUserprofileRepository.findAll() != null
+                    && !this.theUserprofileRepository.findAll().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.OK)
                         .body("listado de Perfiles" + "\n" + this.theUserprofileRepository.findAll());
             } else {
@@ -55,9 +56,9 @@ public class UserProfileController {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Ya existe un perfil con este nombre, apellido y telefono");
             } else {
-                this.theUserprofileRepository.save(theActualProfile);
+                this.theUserprofileRepository.save(userProfile);
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Perfil agregado con éxito." + "\n" + theActualProfile);
+                        .body("Perfil agregado con éxito." + "\n" + userProfile);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

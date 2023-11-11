@@ -36,7 +36,7 @@ public class UsersController {
         try {
             if (this.theUserRepository.findAll() != null) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("listado de Usuarios" + "\n" + this.theUserRepository.findAll());
+                        .body(this.theUserRepository.findAll());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("No hay usuarios registrados");

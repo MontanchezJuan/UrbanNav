@@ -26,9 +26,9 @@ public class RolesController {
     @GetMapping("")
     public ResponseEntity<?> index() {
         try {
-            if (this.theRoleRepository.findAll() != null) {
+            if (this.theRoleRepository.findAll() != null && this.theRoleRepository.findAll().isEmpty() == false) {
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("listado de Roles" + "\n" + this.theRoleRepository.findAll());
+                        .body(this.theRoleRepository.findAll());
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body("No hay perfiles registrados");
@@ -48,9 +48,9 @@ public class RolesController {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Ya existe un rol con este nombre");
             } else {
-                this.theRoleRepository.save(theActualRole);
+                this.theRoleRepository.save(newRole);
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Rol agregado con éxito." + "\n" + theActualRole);
+                        .body("Rol agregado con éxito." + "\n" + newRole);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
