@@ -1,9 +1,8 @@
 package com.urbanNav.security.Controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,47 +30,109 @@ public class CreditCardController {
     private EncryptionService encryp;
 
     @GetMapping("")
-    public List<CreditCard> index() {
-        return this.cardRepository.findAll();
+    public ResponseEntity<?> index() {
+        try {
+            if (this.cardRepository.findAll() != null && this.cardRepository.findAll().isEmpty() == false) {
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(this.cardRepository.findAll());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No hay tarjetas de credito registradas");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al buscar tarjetas de credito" + "\n" + e.toString());
+        }
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public CreditCard store(@RequestBody CreditCard card) {
-        card.setCardCVV(encryp.convertirSHA256(card.getCardCVV()));
-        card.setCardNumber(encryp.convertirSHA256(card.getCardNumber()));
-        card.setExpiryDate(encryp.convertirSHA256(card.getExpiryDate()));
-        return this.cardRepository.save(card);
+    public ResponseEntity<?> store(@RequestBody CreditCard card) {
+        try {
+            CreditCard theCreditCard = this.cardRepository.getCreditCard(encryp.convertirSHA256(card.getCardNumber()))
+                    .orElse(null);
+            if (theCreditCard != null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Ya existe una tarjeta de credito con este numero");
+            } else {
+                card.setCardCVV(encryp.convertirSHA256(card.getCardCVV()));
+                card.setCardNumber(encryp.convertirSHA256(card.getCardNumber()));
+                card.setExpiryDate(encryp.convertirSHA256(card.getExpiryDate()));
+                this.cardRepository.save(card);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Tarjeta de credito agregado con éxito." + "\n" + card);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al intentar crear la tarjeta de credito" + "\n" + e.toString());
+        }
     }
 
     @GetMapping("{id}")
-    public CreditCard show(@PathVariable String id) {
-        CreditCard card = this.cardRepository.findById(id).orElse(null);
-        return card;
+    public ResponseEntity<?> show(@PathVariable String id) {
+        try {
+            CreditCard card = this.cardRepository.findById(id).orElse(null);
+            if (card != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(card);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro la tarjeta de credito");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error en la busqueda de la tarjeta de credito" + "\n" + e.toString());
+        }
     }
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PutMapping("{id}")
-    public CreditCard update(@PathVariable String id, @RequestBody CreditCard card) {
-        CreditCard current = this.cardRepository.findById(id).orElse(null);
-        if (current != null) {
-            current.setName(card.getName());
-            current.setType(card.getType());
-            current.setCardNumber(card.getCardNumber());
-            current.setCardCVV(card.getCardCVV());
-            current.setExpiryDate(card.getExpiryDate());
-            current.setBalance(card.getBalance());
-            return this.cardRepository.save(current);
+    public ResponseEntity<?> update(@PathVariable String id, @RequestBody CreditCard card) {
+        try {
+            CreditCard actualCard = this.cardRepository.findById(id).orElse(null);
+            if (actualCard != null) {
+                if (actualCard.getCardNumber().equals(card.getCardNumber()) == false
+                        && this.cardRepository.getCreditCard(encryp.convertirSHA256(card.getCardNumber()))
+                                .orElse(null) == null) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("Ya existe una tarjeta de credito con este numero");
+                } else {
+                    actualCard.setName(card.getName());
+                    actualCard.setType(card.getType());
+                    actualCard.setCardCVV(encryp.convertirSHA256(card.getCardCVV()));
+                    actualCard.setCardNumber(encryp.convertirSHA256(card.getCardNumber()));
+                    actualCard.setExpiryDate(encryp.convertirSHA256(card.getExpiryDate()));
+                    actualCard.setBalance(card.getBalance());
+                    actualCard.setStatus(card.getstatus());
+                    this.cardRepository.save(actualCard);
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body("Tarjeta de credito actualizada" + "\n" + actualCard);
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se encontro la tarjeta de credito a actualizar");
+
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error en la actualizacion de la tarjeta de credito" + "\n" + e.toString());
         }
-        return null;
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
-    public void destroy(@PathVariable String id) {
-        CreditCard card = this.cardRepository.findById(id).orElse(null);
-        if (card != null) {
-            this.cardRepository.delete(card);
+    public ResponseEntity<?> destroy(@PathVariable String id) {
+        try {
+            CreditCard card = this.cardRepository.findById(id).orElse(null);
+            if (card != null) {
+                this.cardRepository.delete(card);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Se elimino correctamente la tarjeta de credito:" + "\n" + card);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se encontro la tarjeta de credito a eliminar");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error en la eliminacion de la tarjeta de credito" + "\n" + e.toString());
         }
     }
 }

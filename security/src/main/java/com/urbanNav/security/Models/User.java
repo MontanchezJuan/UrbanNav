@@ -13,7 +13,6 @@ import java.util.List;
 public class User {
     @Id
     private String _id;
-    private String name;
     private String email;
     private String password;
     private int status;
@@ -30,7 +29,6 @@ public class User {
     }
 
     public User(String name, String email, String password, int status, String twofactor_code) {
-        this.name = name;
         this.email = email;
         this.password = password;
         this.status = status;
@@ -41,16 +39,8 @@ public class User {
         return _id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void set_id(String _id) {
         this._id = _id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {

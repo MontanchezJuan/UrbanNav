@@ -12,6 +12,7 @@ public class Permission {
     private String route;
     private String method;
     private String description;
+    private int status;
 
     public Permission() {
     }
@@ -49,4 +50,13 @@ public class Permission {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
 }

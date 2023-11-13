@@ -16,9 +16,11 @@ public class CreditCard {
     private String cardNumber;
     private String cardCVV;
     private String expiryDate;
-    private double balance; 
+    private double balance;
+    private int status;
 
-    CreditCard(){}
+    CreditCard() {
+    }
 
     public String getName() {
         return name;
@@ -67,5 +69,13 @@ public class CreditCard {
     public void setBalance(double balance) {
         this.balance = balance;
     }
-    
+
+    public int getstatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
 }

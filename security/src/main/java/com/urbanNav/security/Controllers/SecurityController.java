@@ -37,7 +37,7 @@ public class SecurityController {
     @PostMapping("login")
     public String login(@RequestBody User theUser, final HttpServletResponse response) throws IOException {
         String token = "";
-        User actualUser = this.theUserRepository.getUserByEmail(theUser.getEmail());
+        User actualUser = this.theUserRepository.getUserByEmail(theUser.getEmail()).orElse(null);
         if (actualUser != null
                 && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))) {
             // Generar token
@@ -53,7 +53,7 @@ public class SecurityController {
     @PostMapping("sign-up")
     public ResponseEntity<?> signUp(@RequestBody User newUser) {
         try {
-            User theActualUser = this.theUserRepository.getUserByEmail(newUser.getEmail());
+            User theActualUser = this.theUserRepository.getUserByEmail(newUser.getEmail()).orElse(null);
             if (theActualUser != null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un usuario con este correo");
             } else {

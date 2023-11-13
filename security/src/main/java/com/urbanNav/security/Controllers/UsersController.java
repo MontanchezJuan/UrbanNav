@@ -69,17 +69,21 @@ public class UsersController {
         try {
             User theActualUser = this.theUserRepository.findById(id).orElse(null);
             if (theActualUser != null) {
-                theActualUser.setName(theNewUser.getName());
-                // se deberia poder actualizar al email??
-                // en caso de que si, se debe verificar que el nuevo correo no lo tenga otro
-                // usuario
-                theActualUser.setEmail(theNewUser.getEmail());
-                theActualUser.setPassword(encryptionService.convertirSHA256(theNewUser.getPassword()));
-                theActualUser.setStatus(theNewUser.getStatus());
-                this.theUserRepository.save(theActualUser);
-                return ResponseEntity.status(HttpStatus.OK).body("Usuario actualizado" + "\n" + theActualUser);
+                if (theActualUser.getEmail().equals(theNewUser.getEmail()) == false
+                        && this.theUserRepository.getUserByEmail(theNewUser.getEmail()).orElse(null) != null) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT)
+                            .body("Este correo ya le pertenece a otro usuario");
+
+                } else {
+                    theActualUser.setEmail(theNewUser.getEmail());
+                    theActualUser.setPassword(encryptionService.convertirSHA256(theNewUser.getPassword()));
+                    theActualUser.setStatus(theNewUser.getStatus());
+                    this.theUserRepository.save(theActualUser);
+                    return ResponseEntity.status(HttpStatus.OK).body("Usuario actualizado" + "\n" + theActualUser);
+                }
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario a actualizar");
+
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

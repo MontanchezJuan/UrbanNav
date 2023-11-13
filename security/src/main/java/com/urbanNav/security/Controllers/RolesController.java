@@ -43,7 +43,7 @@ public class RolesController {
     @PostMapping("")
     public ResponseEntity<?> store(@RequestBody Role newRole) {
         try {
-            Role theActualRole = this.theRoleRepository.getRole(newRole.getName());
+            Role theActualRole = this.theRoleRepository.getRole(newRole.getName()).orElse(null);
             if (theActualRole != null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Ya existe un rol con este nombre");
@@ -80,13 +80,20 @@ public class RolesController {
         try {
             Role theRole = this.theRoleRepository.findById(id).orElse(null);
             if (theRole != null) {
-                theRole.setName(theNewRole.getName());
-                theRole.setDescription(theNewRole.getDescription());
-                theRole.setStatus(theNewRole.getStatus());
-                this.theRoleRepository.save(theRole);
-                return ResponseEntity.status(HttpStatus.OK).body("Rol actualizado" + "\n" + theRole);
+                if (theRole.getName().equals(theNewRole.getName()) == false
+                        && this.theRoleRepository.getRole(theNewRole.getName()).orElse(null) != null) {
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un rol con este nombre");
+                } else {
+                    theRole.setName(theNewRole.getName());
+                    theRole.setDescription(theNewRole.getDescription());
+                    theRole.setStatus(theNewRole.getStatus());
+                    this.theRoleRepository.save(theRole);
+                    return ResponseEntity.status(HttpStatus.OK).body("Rol actualizado" + "\n" + theRole);
+
+                }
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol a actualizar");
+
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
