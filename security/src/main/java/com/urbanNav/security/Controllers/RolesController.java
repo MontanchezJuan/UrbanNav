@@ -125,7 +125,7 @@ public class RolesController {
             Role theActualRole = this.theRoleRepository.findById(role_id).orElse(null);
             Permission theActualPermission = this.thePermissionRepository.findById(permission_id).orElse(null);
             if (theActualRole != null && theActualPermission != null) {
-                if (Arrays.stream(theActualRole.getTotalPermissions())
+                if (theActualRole.getTotalPermissions() != null && Arrays.stream(theActualRole.getTotalPermissions())
                         .anyMatch(existingPermission -> existingPermission.get_id()
                                 .equals(theActualPermission.get_id()))) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("Este permiso ya existe en este rol.");

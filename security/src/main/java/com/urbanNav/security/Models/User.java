@@ -28,7 +28,7 @@ public class User {
     public User() {
     }
 
-    public User(String name, String email, String password, int status, String twofactor_code) {
+    public User(String email, String password, int status, String twofactor_code) {
         this.email = email;
         this.password = password;
         this.status = status;

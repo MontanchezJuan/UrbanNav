@@ -30,7 +30,7 @@ public class ValidatorsService {
             Role theRole = theUser.getRole();
             url = url.replaceAll("[0-9a-fA-F]{24}", "?");
             Permission thePermission = thePermissionRepository.getPermission(url,
-                    method);
+                    method).orElse(null);
 
             if (theRole != null && thePermission != null) {
                 for (Permission permission : theRole.getTotalPermissions()) {
@@ -47,11 +47,6 @@ public class ValidatorsService {
             System.out.println("no tiene este permiso");
         }
         return success;
-    }
-
-    public String getUrlString(String url) {
-        String newUrl = "";
-        return newUrl;
     }
 
     public User getUser(final HttpServletRequest request) {

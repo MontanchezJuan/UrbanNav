@@ -1,6 +1,7 @@
 package com.urbanNav.security.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -20,10 +21,24 @@ public class SecurityInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler)
             throws Exception {
-        boolean success = this.validatorService.validationRolePermission(request,
-                request.getRequestURI(),
-                request.getMethod());
-        return success;
+        try {
+            boolean success = this.validatorService.validationRolePermission(request,
+                    request.getRequestURI(),
+                    request.getMethod());
+            if (success == true) {
+                System.out.println("Permiso valido");
+                return success;
+            } else {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.getWriter().write("Acceso denegado");
+                return success;
+            }
+        } catch (Exception e) {
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.getWriter().write("Error al procesar la peticion");
+            return false;
+        }
+
     }
 
     @Override

@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import com.urbanNav.security.Models.Permission;
 import com.urbanNav.security.Repositories.PermissionRepository;
 
-import java.util.List;
-
 @CrossOrigin
 @RestController
 @RequestMapping("permissions")
