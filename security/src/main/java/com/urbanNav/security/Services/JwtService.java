@@ -30,12 +30,11 @@ public class JwtService {
         Date expiryDate = new Date(now.getTime() + expiration);
         Map<String, Object> claims = new HashMap<>();
         claims.put("_id", theUser.get_id());
-        claims.put("name", theUser.getName());
         claims.put("email", theUser.getEmail());
         claims.put("role", theUser.getRole());
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(theUser.getName())
+                .setSubject(theUser.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(secretKey)
@@ -74,7 +73,6 @@ public class JwtService {
 
             User user = new User();
             user.set_id((String) claims.get("_id"));
-            user.setName((String) claims.get("name"));
             user.setEmail((String) claims.get("email"));
             return user;
         } catch (Exception e) {

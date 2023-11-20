@@ -1,20 +1,18 @@
 package com.urbanNav.security.Models;
 
 import lombok.Data;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-
+import java.util.List;
 
 @Data
 @Document()
 public class User {
     @Id
     private String _id;
-    private String name;
     private String email;
     private String password;
     private int status;
@@ -23,13 +21,14 @@ public class User {
     @DBRef
     private Role role;
     @DBRef
-    private CreditCard[] creditCards;
+    private List<CreditCard> creditCards;
+    @DBRef
+    private UserProfile userProfile;
 
     public User() {
     }
 
-    public User(String name, String email, String password, int status, String twofactor_code) {
-        this.name = name;
+    public User(String email, String password, int status, String twofactor_code) {
         this.email = email;
         this.password = password;
         this.status = status;
@@ -40,16 +39,8 @@ public class User {
         return _id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void set_id(String _id) {
         this._id = _id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getEmail() {
@@ -85,13 +76,12 @@ public class User {
     }
 
     public LocalDateTime getCreated_at() {
-    return created_at;
+        return created_at;
     }
 
     public void setCreated_at(LocalDateTime created_at) {
-    this.created_at = created_at;
+        this.created_at = created_at;
     }
-
 
     public String getTwofactor_code() {
         return twofactor_code;
@@ -99,5 +89,21 @@ public class User {
 
     public void setTwofactor_code(String twofactor_code) {
         this.twofactor_code = twofactor_code;
+    }
+
+    public void addCreditCard(CreditCard creditCard) {
+        this.creditCards.add(creditCard);
+    }
+
+    public void removeCreditCard(CreditCard creditCard) {
+        this.creditCards.remove(creditCard);
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
+    }
+
+    public UserProfile getUserProfile(UserProfile userProfile) {
+        return this.userProfile;
     }
 }

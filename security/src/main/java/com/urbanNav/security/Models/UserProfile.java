@@ -1,9 +1,8 @@
 package com.urbanNav.security.Models;
 
-import java.sql.Date;
+import java.util.Date;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -20,10 +19,10 @@ public class UserProfile {
     private Date birthday;
     private String backgroundImage;
     private String numberPhone;
-    @DBRef
-    private User user;
+    private int status;
 
-    UserProfile(){}
+    UserProfile() {
+    }
 
     public String getName() {
         return name;
@@ -73,11 +72,11 @@ public class UserProfile {
         this.numberPhone = numberPhone;
     }
 
-    public User getUser(){
-        return this.user;
+    public int getStatus() {
+        return status;
     }
 
-    public void setUser(User user){
-        this.user = user;
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
