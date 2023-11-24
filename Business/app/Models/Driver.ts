@@ -10,7 +10,8 @@ export default class Driver extends BaseModel {
 
   @column()
   public user_id: string
-  public user: JSON
+  @column()
+  public user: any
 
   @column()
   public is_active: boolean

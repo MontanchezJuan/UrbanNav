@@ -5,6 +5,7 @@ import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
 import com.urbanNav.security.Services.JwtService;
+import com.urbanNav.security.Services.ObjectMapperService;
 import com.urbanNav.security.Services.ValidatorsService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin
 @RestController
@@ -32,6 +35,9 @@ public class SecurityController {
     @Autowired
     private ValidatorsService validatorService;
 
+    @Autowired
+    private ObjectMapperService objectMapperService;
+
     // Método login
     @PostMapping("login")
     public ResponseEntity<?> login(@RequestBody User theUser) throws IOException {
@@ -42,14 +48,15 @@ public class SecurityController {
                     && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))) {
                 // Generar token
                 token = jwtService.generateToken(actualUser);
-                return ResponseEntity.status(HttpStatus.OK).body("Inicio de sesion correcto" + "\ntoken:\n" + token);
+                String finalJson = "{\"token\":\"" + token + "\"}";
+                return ResponseEntity.status(HttpStatus.OK).body(finalJson);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Inicio de sesion incorrecto");
+                        .body("{\"message\":\" Inicio de sesion incorrecto\" }");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al intentar iniciar sesion" + "\n" + e.toString());
+                    .body("{\"message\":\" Error al intentar iniciar sesion \",\"Error\":\"" + e.toString() + "\"}");
         }
     }
 
@@ -59,33 +66,41 @@ public class SecurityController {
         try {
             User theActualUser = this.theUserRepository.getUserByEmail(newUser.getEmail()).orElse(null);
             if (theActualUser != null) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un usuario con este correo");
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("{\"message\":\" Ya existe un usuario con este correo\" }");
             } else {
                 newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
                 newUser.setCreated_at(LocalDateTime.now());
                 this.theUserRepository.save(newUser);
-                return ResponseEntity.status(HttpStatus.OK).body("Usuario agregado con éxito." + "\n" + newUser);
+                objectMapperService.writeToJSON(newUser);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("{\"message\":\" Usuario creado con exito\",\"user\":" + newUser + "}");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al intentar crear el usuario" + "\n" + e.toString());
+                    .body("{\"message\":\" Error al intentar crear el usuario\",\"error\":\"" + e.toString() + "\"}");
         }
     }
 
     // Método logout
     // Método reset pass
-    @GetMapping("token-validation")
-    public ResponseEntity<?> tokenValidation(final HttpServletRequest request) {
+    @GetMapping("get-user")
+    public ResponseEntity<?> getUser(final HttpServletRequest request) {
         try {
             User theUser = this.validatorService.getUser(request);
             if (theUser != null) {
-                return ResponseEntity.status(HttpStatus.OK).body("token valido" + "\n" + theUser);
+                // Map<String, Object> userObject = new HashMap<>();
+                // userObject.put("email", theUser.getEmail());
+                // userObject.put("role", theUser.getRole());
+                String userJSON = objectMapperService.writeToJSON(theUser);
+                String finalJSON = "{\"user\":" + userJSON + "}";
+                return ResponseEntity.status(HttpStatus.OK).body(finalJSON);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("token no valido" + "\n" + theUser);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\" Token no valido\"}");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al validar el token" + "\n" + e.toString());
+                    .body("{\"message\":\" Error al validar el token\",\"error\":\"" + e.toString() + "\"}");
         }
     }
 
@@ -96,15 +111,14 @@ public class SecurityController {
             boolean success = this.validatorService.validationRolePermission(request, thePermission.getRoute(),
                     thePermission.getMethod());
             if (success == true) {
-                return ResponseEntity.status(HttpStatus.OK).body("permiso valido" + "\n" + success);
+                return ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"permiso valido\"}");
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("permiso no valido" + "\n" + success);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"permiso no valido\"}");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al validar el permiso" + "\n" + e.toString());
+                    .body("{\"message\":\"Error al validar el permiso\",\"" + e.toString() + "\"}");
         }
 
     }
-
 }
