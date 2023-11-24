@@ -111,7 +111,7 @@ public class RolesController {
                 return ResponseEntity.status(HttpStatus.OK)
                         .body("Se elimino correctamente al perfil:" + "\n" + theRole);
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al perfil a eliminar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol a eliminar");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

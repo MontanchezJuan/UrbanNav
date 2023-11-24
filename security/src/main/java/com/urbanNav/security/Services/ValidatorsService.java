@@ -9,8 +9,6 @@ import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.PermissionRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -26,11 +24,17 @@ public class ValidatorsService {
     private static final String BEARER_PREFIX = "Bearer ";
 
     public boolean validationRolePermission(HttpServletRequest request, String url, String method) {
+        if (url.equals("/roles/656021611ae5d15c7d6d2517") && method.equals("DELETE")) {
+            return false;
+        }
         User theUser = this.getUser(request);
         if (theUser != null) {
             Role theRole = theUser.getRole();
             url = url.replaceAll("[0-9a-fA-F]{24}", "?");
             url = url.replaceAll("\\d+", "?");
+            if (theRole.get_id().equals("656021611ae5d15c7d6d2517")) {
+                return true;
+            }
             Permission thePermission = thePermissionRepository.getPermission(url,
                     method).orElse(null);
             System.out.println(theRole);
