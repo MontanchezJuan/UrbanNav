@@ -6,11 +6,10 @@ import { Response } from '@adonisjs/core/build/standalone'
 export default class Security {
   public async handle({ request, response }: HttpContextContract, next: () => Promise<void>) {
     let theRequest = request.toJSON()
-    console.log(theRequest)
     if (theRequest.headers.authorization) {
       let token = theRequest.headers.authorization.replace('Bearer ', '')
       let thePermission: object = {
-        url: theRequest.url,
+        route: theRequest.url,
         method: theRequest.method,
       }
       try {
@@ -24,15 +23,13 @@ export default class Security {
           }
         )
         console.log('La respuesta de ms-security >' + result.data + '<')
-        if (result.data == true) {
-          console.log(result.data)
+        if (result.status == 200) {
           await next()
         } else {
           console.log('no puede ingresar')
           return response.status(401)
         }
       } catch (error) {
-        console.error(error)
         return response.status(401)
       }
     } else {

@@ -9,6 +9,8 @@ import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.PermissionRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Service
@@ -24,29 +26,30 @@ public class ValidatorsService {
     private static final String BEARER_PREFIX = "Bearer ";
 
     public boolean validationRolePermission(HttpServletRequest request, String url, String method) {
-        boolean success = false;
         User theUser = this.getUser(request);
         if (theUser != null) {
             Role theRole = theUser.getRole();
             url = url.replaceAll("[0-9a-fA-F]{24}", "?");
+            url = url.replaceAll("\\d+", "?");
             Permission thePermission = thePermissionRepository.getPermission(url,
                     method).orElse(null);
+            System.out.println(theRole);
 
             if (theRole != null && thePermission != null) {
                 for (Permission permission : theRole.getTotalPermissions()) {
                     if (permission.equals(thePermission)) {
-                        success = true;
+                        return true;
                     }
                 }
             } else {
-                success = false;
+                System.out.println("no tiene este permiso");
+                return false;
             }
 
         }
-        if (success == false) {
-            System.out.println("no tiene este permiso");
-        }
-        return success;
+        System.out.println("el usuario no existe");
+        return false;
+
     }
 
     public User getUser(final HttpServletRequest request) {
@@ -54,13 +57,17 @@ public class ValidatorsService {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
             String token = authorizationHeader.substring(BEARER_PREFIX.length());
-            User theUserFromToken = jwtService.getUserFromToken(token);
-            if (theUserFromToken != null) {
-                theUser = this.theUserRepository.findById(theUserFromToken.get_id())
-                        .orElse(null);
-                theUser.setPassword("");
+            Boolean isValid = jwtService.validateToken(token);
+            if (isValid == true) {
+                User theUserFromToken = jwtService.getUserFromToken(token);
+                if (theUserFromToken != null) {
+                    theUser = this.theUserRepository.findById(theUserFromToken.get_id())
+                            .orElse(null);
+                    theUser.setPassword("");
+                }
             }
         }
         return theUser;
     }
+
 }
