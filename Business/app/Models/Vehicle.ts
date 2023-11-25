@@ -14,6 +14,9 @@ export default class Vehicle extends BaseModel {
   driver: BelongsTo<typeof Driver>
 
   @column()
+  public license_plate: string
+
+  @column()
   public model: string
 
   @column()
@@ -35,5 +38,5 @@ export default class Vehicle extends BaseModel {
   public createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
-  public updatedAt: DateTime
+  public updatedAt: DateTime
 }
