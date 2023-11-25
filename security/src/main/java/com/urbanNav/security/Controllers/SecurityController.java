@@ -5,7 +5,7 @@ import com.urbanNav.security.Models.User;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
 import com.urbanNav.security.Services.JwtService;
-import com.urbanNav.security.Services.ObjectMapperService;
+import com.urbanNav.security.Services.JSONResponsesService;
 import com.urbanNav.security.Services.ValidatorsService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ public class SecurityController {
     private ValidatorsService validatorService;
 
     @Autowired
-    private ObjectMapperService objectMapperService;
+    private JSONResponsesService jsonResponsesService;
 
     // Método login
     @PostMapping("login")
@@ -48,15 +48,20 @@ public class SecurityController {
                     && actualUser.getPassword().equals(encryptionService.convertirSHA256(theUser.getPassword()))) {
                 // Generar token
                 token = jwtService.generateToken(actualUser);
-                String finalJson = "{\"token\":\"" + token + "\"}";
-                return ResponseEntity.status(HttpStatus.OK).body(finalJson);
+                this.jsonResponsesService.setMessage("Inicio de Sesion Correcto");
+                this.jsonResponsesService.setData(token);
+                return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
+                this.jsonResponsesService.setMessage("Inicio de sesion incorrecto");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("{\"message\":\" Inicio de sesion incorrecto\" }");
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setMessage("Error al intentar iniciar sesion");
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setData(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\":\" Error al intentar iniciar sesion \",\"Error\":\"" + e.toString() + "\"}");
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -66,19 +71,25 @@ public class SecurityController {
         try {
             User theActualUser = this.theUserRepository.getUserByEmail(newUser.getEmail()).orElse(null);
             if (theActualUser != null) {
+                this.jsonResponsesService.setMessage("Ya existe un usuario con este correo");
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("{\"message\":\" Ya existe un usuario con este correo\" }");
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
                 newUser.setCreated_at(LocalDateTime.now());
                 this.theUserRepository.save(newUser);
-                objectMapperService.writeToJSON(newUser);
+                this.jsonResponsesService.setMessage("Usuario creado con exito");
+                String userJSON = jsonResponsesService.writeToJSON(newUser);
+                this.jsonResponsesService.setData(userJSON);
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("{\"message\":\" Usuario creado con exito\",\"user\":" + newUser + "}");
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setMessage("Error al intentar crear el usuario");
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setData(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\":\" Error al intentar crear el usuario\",\"error\":\"" + e.toString() + "\"}");
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -92,15 +103,20 @@ public class SecurityController {
                 // Map<String, Object> userObject = new HashMap<>();
                 // userObject.put("email", theUser.getEmail());
                 // userObject.put("role", theUser.getRole());
-                String userJSON = objectMapperService.writeToJSON(theUser);
-                String finalJSON = "{\"user\":" + userJSON + "}";
-                return ResponseEntity.status(HttpStatus.OK).body(finalJSON);
+                String userJSON = jsonResponsesService.writeToJSON(theUser);
+                this.jsonResponsesService.setMessage("Token valido");
+                this.jsonResponsesService.setData(userJSON);
+                return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\" Token no valido\"}");
+                this.jsonResponsesService.setMessage("Token no valido");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setMessage("Error al validar el token");
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\":\" Error al validar el token\",\"error\":\"" + e.toString() + "\"}");
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -111,13 +127,20 @@ public class SecurityController {
             boolean success = this.validatorService.validationRolePermission(request, thePermission.getRoute(),
                     thePermission.getMethod());
             if (success == true) {
-                return ResponseEntity.status(HttpStatus.OK).body("{\"message\":\"permiso valido\"}");
+                this.jsonResponsesService.setMessage("permiso valido");
+                ;
+                return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\":\"permiso no valido\"}");
+                this.jsonResponsesService.setMessage("permiso no valido");
+                ;
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setMessage("Error al validar el permiso");
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setData(null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\":\"Error al validar el permiso\",\"" + e.toString() + "\"}");
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
 
     }

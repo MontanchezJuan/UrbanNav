@@ -1,5 +1,7 @@
 package com.urbanNav.security.Controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import com.urbanNav.security.Repositories.RoleRepository;
 import com.urbanNav.security.Repositories.UserProfileRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
+import com.urbanNav.security.Services.JSONResponsesService;
 
 @CrossOrigin
 @RestController
@@ -30,20 +33,25 @@ public class UsersController {
     private UserProfileRepository theUserProfileRepository;
     @Autowired
     private EncryptionService encryptionService;
+    @Autowired
+    private JSONResponsesService jsonResponsesService;
 
     @GetMapping("")
     public ResponseEntity<?> index() {
         try {
             if (this.theUserRepository.findAll() != null) {
+                List<User> users = this.theUserRepository.findAll();
+                String usersJSON = this.jsonResponsesService.writeToJSON(users);
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(this.theUserRepository.findAll());
+                        .body("{\"message\":\"Lista de Usuarios encontrada correctamente\",\"data\":" + usersJSON
+                                + "}");
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No hay usuarios registrados");
+                        .body("{\"message\":\"No hay usuarios registrados\"}");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al buscar usuarios" + "\n" + e.toString());
+                    .body("{\"message\":\"Error al buscar usuarios\",\"error\":" + e.toString() + "}");
         }
     }
 
@@ -54,13 +62,15 @@ public class UsersController {
                     .findById(id)
                     .orElse(null);
             if (theUser != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(theUser);
+                String theUserJSON = this.jsonResponsesService.writeToJSON(theUser);
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("{\"message\":\"usuario encontrado con exito\",\"data\":" + theUserJSON + "}");
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\":\"No se encontro al usuario\"");
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la busqueda del usuario" + "\n" + e.toString());
+                    .body("{\"message\":\"Error en la busqueda del usuario\",\"error\":" + e.toString() + "}");
         }
     }
 
@@ -72,14 +82,15 @@ public class UsersController {
                 if (theActualUser.getEmail().equals(theNewUser.getEmail()) == false
                         && this.theUserRepository.getUserByEmail(theNewUser.getEmail()).orElse(null) != null) {
                     return ResponseEntity.status(HttpStatus.CONFLICT)
-                            .body("Este correo ya le pertenece a otro usuario");
+                            .body("{\"message\":\"Este correo ya le pertenece a otro usuario\"");
 
                 } else {
                     theActualUser.setEmail(theNewUser.getEmail());
                     theActualUser.setPassword(encryptionService.convertirSHA256(theNewUser.getPassword()));
                     theActualUser.setStatus(theNewUser.getStatus());
                     this.theUserRepository.save(theActualUser);
-                    return ResponseEntity.status(HttpStatus.OK).body("Usuario actualizado" + "\n" + theActualUser);
+                    return ResponseEntity.status(HttpStatus.OK)
+                            .body("\"message" + "Usuario actualizado" + "\n" + theActualUser);
                 }
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario a actualizar");
