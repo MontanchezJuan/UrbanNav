@@ -71,6 +71,7 @@ public class JSONResponsesService {
             finalJSON = finalJSON + "\"error\":\"" + error + "\",";
             error = null;
         }
+        finalJSON = finalJSON.substring(0, finalJSON.length() - 1);
         return finalJSON + "}";
     }
 }
