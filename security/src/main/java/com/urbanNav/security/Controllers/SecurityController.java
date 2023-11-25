@@ -1,7 +1,9 @@
 package com.urbanNav.security.Controllers;
 
 import com.urbanNav.security.Models.Permission;
+import com.urbanNav.security.Models.Role;
 import com.urbanNav.security.Models.User;
+import com.urbanNav.security.Repositories.RoleRepository;
 import com.urbanNav.security.Repositories.UserRepository;
 import com.urbanNav.security.Services.EncryptionService;
 import com.urbanNav.security.Services.JwtService;
@@ -25,6 +27,9 @@ import java.util.Map;
 public class SecurityController {
     @Autowired
     private UserRepository theUserRepository;
+
+    @Autowired
+    private RoleRepository theRoleRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -77,6 +82,8 @@ public class SecurityController {
             } else {
                 newUser.setPassword(encryptionService.convertirSHA256(newUser.getPassword()));
                 newUser.setCreated_at(LocalDateTime.now());
+                Role defaultRole = this.theRoleRepository.getRole("default").orElse(null);
+                newUser.setRole(defaultRole);
                 this.theUserRepository.save(newUser);
                 this.jsonResponsesService.setMessage("Usuario creado con exito");
                 this.jsonResponsesService.setData(newUser);
@@ -126,11 +133,9 @@ public class SecurityController {
                     thePermission.getMethod());
             if (success == true) {
                 this.jsonResponsesService.setMessage("permiso valido");
-                ;
                 return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
                 this.jsonResponsesService.setMessage("permiso no valido");
-                ;
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
@@ -140,6 +145,5 @@ public class SecurityController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(this.jsonResponsesService.getFinalJSON());
         }
-
     }
 }
