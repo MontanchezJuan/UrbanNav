@@ -11,7 +11,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class JSONResponsesService {
     private ObjectMapper objectMapper;
     private String message;
-    private String data;
+    private Object data;
     private String error;
 
     public String getMessage() {
@@ -22,11 +22,11 @@ public class JSONResponsesService {
         this.message = message;
     }
 
-    public String getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
@@ -44,23 +44,32 @@ public class JSONResponsesService {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
-    public String writeToJSON(Object object) throws JsonProcessingException {
-        return this.objectMapper.writeValueAsString(object);
+    public String writeToJSON(Object object) {
+        try {
+            return this.objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            return "";
+        }
     }
 
     public String getFinalJSON() {
         String finalJSON = "{";
         if (message != null && message.equals("") == false) {
             finalJSON = finalJSON + "\"message\":\"" + message + "\",";
-            message = "";
+            message = null;
         }
-        if (data != null && data.equals("") == false) {
-            finalJSON = finalJSON + "\"data\":\"" + data + "\",";
-            data = "";
+        if (data != null) {
+            if (data instanceof String && data.equals("") == false) {
+                finalJSON = finalJSON + "\"data\":\"" + data + "\",";
+            } else {
+                String dataJSON = this.writeToJSON(data);
+                finalJSON = finalJSON + "\"data\":" + dataJSON + ",";
+            }
+            data = null;
         }
         if (error != null && error.equals("") == false) {
             finalJSON = finalJSON + "\"error\":\"" + error + "\",";
-            error = "";
+            error = null;
         }
         return finalJSON + "}";
     }

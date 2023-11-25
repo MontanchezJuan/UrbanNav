@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.*;
 import com.urbanNav.security.Models.Permission;
 import com.urbanNav.security.Models.Role;
 import com.urbanNav.security.Repositories.RoleRepository;
+import com.urbanNav.security.Services.JSONResponsesService;
 
 import java.util.Arrays;
+import java.util.List;
 
 import com.urbanNav.security.Repositories.PermissionRepository;
 
@@ -22,20 +24,29 @@ public class RolesController {
     private RoleRepository theRoleRepository;
     @Autowired
     private PermissionRepository thePermissionRepository;
+    @Autowired
+    private JSONResponsesService jsonResponsesService;
 
     @GetMapping("")
     public ResponseEntity<?> index() {
         try {
             if (this.theRoleRepository.findAll() != null && this.theRoleRepository.findAll().isEmpty() == false) {
+                List<Role> roles = this.theRoleRepository.findAll();
+                this.jsonResponsesService.setData(roles);
+                this.jsonResponsesService.setMessage("Listado de roles encontrado con exito");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body(this.theRoleRepository.findAll());
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
+                this.jsonResponsesService.setMessage("No hay perfiles registrados");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No hay perfiles registrados");
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al buscar roles");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al buscar perfiles" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -45,16 +56,22 @@ public class RolesController {
         try {
             Role theActualRole = this.theRoleRepository.getRole(newRole.getName()).orElse(null);
             if (theActualRole != null) {
+                this.jsonResponsesService.setMessage("Ya existe un rol con este nombre");
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("Ya existe un rol con este nombre");
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 this.theRoleRepository.save(newRole);
+                this.jsonResponsesService.setData(newRole);
+                this.jsonResponsesService.setMessage("Rol agregado con éxito");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Rol agregado con éxito." + "\n" + newRole);
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al intentar crear el rol");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al intentar crear el rol" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -65,13 +82,19 @@ public class RolesController {
                     .findById(id)
                     .orElse(null);
             if (theRole != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(theRole);
+                this.jsonResponsesService.setMessage("Rol encontrado con exito");
+                this.jsonResponsesService.setData(theRole);
+                return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol");
+                this.jsonResponsesService.setMessage("No se encontro al rol");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la busqueda del rol");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la busqueda del rol" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -82,22 +105,29 @@ public class RolesController {
             if (theRole != null) {
                 if (theRole.getName().equals(theNewRole.getName()) == false
                         && this.theRoleRepository.getRole(theNewRole.getName()).orElse(null) != null) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un rol con este nombre");
+                    this.jsonResponsesService.setMessage("Ya existe un rol con este nombre");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(this.jsonResponsesService.getFinalJSON());
                 } else {
                     theRole.setName(theNewRole.getName());
                     theRole.setDescription(theNewRole.getDescription());
                     theRole.setStatus(theNewRole.getStatus());
                     this.theRoleRepository.save(theRole);
-                    return ResponseEntity.status(HttpStatus.OK).body("Rol actualizado" + "\n" + theRole);
+                    this.jsonResponsesService.setMessage("Rol actualizado");
+                    this.jsonResponsesService.setData(theRole);
+                    return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
 
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol a actualizar");
+                this.jsonResponsesService.setMessage("No se encontro al rol a actualizar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
 
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la actualizacion del rol");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la actualizacion del rol" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -108,14 +138,20 @@ public class RolesController {
             Role theRole = this.theRoleRepository.findById(id).orElse(null);
             if (theRole != null) {
                 this.theRoleRepository.delete(theRole);
+                this.jsonResponsesService.setData(theRole);
+                this.jsonResponsesService.setMessage("Se elimino correctamente el rol");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se elimino correctamente al perfil:" + "\n" + theRole);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al rol a eliminar");
+                this.jsonResponsesService.setMessage("No se encontro al rol a eliminar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la eliminacion del perfil");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la eliminacion del perfil" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -128,24 +164,31 @@ public class RolesController {
                 if (theActualRole.getTotalPermissions() != null && Arrays.stream(theActualRole.getTotalPermissions())
                         .anyMatch(existingPermission -> existingPermission.get_id()
                                 .equals(theActualPermission.get_id()))) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Este permiso ya existe en este rol.");
+                    this.jsonResponsesService.setMessage("Este permiso ya existe en este rol.");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(this.jsonResponsesService.getFinalJSON());
                 } else {
                     theActualRole.addPermission(theActualPermission);
                     this.theRoleRepository.save(theActualRole);
-                    return ResponseEntity.status(HttpStatus.OK).body("Permiso agregado con éxito." + "\n"
-                            + theActualRole);
+                    this.jsonResponsesService.setData(theActualRole);
+                    this.jsonResponsesService.setMessage("Permiso agregado con éxito");
+                    return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
                 }
             } else {
                 if (theActualRole == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado.");
+                    this.jsonResponsesService.setMessage("Rol no encontrado");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Permiso no encontrado.");
+                    this.jsonResponsesService.setMessage("Permiso no encontrado");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 }
             }
 
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al añadir el permiso al rol");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al añadir el permiso al rol" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -158,18 +201,24 @@ public class RolesController {
             if (theActualRole != null && theActualPermission != null) {
                 theActualRole.removePermission(theActualPermission);
                 this.theRoleRepository.save(theActualRole);
-                return ResponseEntity.status(HttpStatus.OK).body("Permiso removido con éxito." + "\n"
-                        + theActualRole);
+                this.jsonResponsesService.setMessage("Permiso removido con éxito");
+                this.jsonResponsesService.setData(theActualRole);
+                return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
                 if (theActualRole == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Rol no encontrado.");
+                    this.jsonResponsesService.setMessage("Rol no encontrado");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Permiso no encontrado.");
+                    this.jsonResponsesService.setMessage("Permiso no encontrado");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 }
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al remover el permiso al rol");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al remover el permiso al rol" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
 
     }

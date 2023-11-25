@@ -41,17 +41,21 @@ public class UsersController {
         try {
             if (this.theUserRepository.findAll() != null) {
                 List<User> users = this.theUserRepository.findAll();
-                String usersJSON = this.jsonResponsesService.writeToJSON(users);
+                this.jsonResponsesService.setData(users);
+                this.jsonResponsesService.setMessage("Lista de Usuarios encontrada correctamente");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("{\"message\":\"Lista de Usuarios encontrada correctamente\",\"data\":" + usersJSON
-                                + "}");
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
+                this.jsonResponsesService.setMessage("No hay usuarios registrados");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("{\"message\":\"No hay usuarios registrados\"}");
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al buscar usuarios");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\":\"Error al buscar usuarios\",\"error\":" + e.toString() + "}");
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -62,15 +66,21 @@ public class UsersController {
                     .findById(id)
                     .orElse(null);
             if (theUser != null) {
-                String theUserJSON = this.jsonResponsesService.writeToJSON(theUser);
+                this.jsonResponsesService.setData(theUser);
+                this.jsonResponsesService.setMessage("usuario encontrado con exito");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("{\"message\":\"usuario encontrado con exito\",\"data\":" + theUserJSON + "}");
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("{\"message\":\"No se encontro al usuario\"");
+                this.jsonResponsesService.setMessage("No se encontro al usuario");
+                ;
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la busqueda del usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("{\"message\":\"Error en la busqueda del usuario\",\"error\":" + e.toString() + "}");
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -81,24 +91,31 @@ public class UsersController {
             if (theActualUser != null) {
                 if (theActualUser.getEmail().equals(theNewUser.getEmail()) == false
                         && this.theUserRepository.getUserByEmail(theNewUser.getEmail()).orElse(null) != null) {
+                    this.jsonResponsesService.setMessage("Este correo ya le pertenece a otro usuario");
                     return ResponseEntity.status(HttpStatus.CONFLICT)
-                            .body("{\"message\":\"Este correo ya le pertenece a otro usuario\"");
+                            .body(this.jsonResponsesService.getFinalJSON());
 
                 } else {
                     theActualUser.setEmail(theNewUser.getEmail());
                     theActualUser.setPassword(encryptionService.convertirSHA256(theNewUser.getPassword()));
                     theActualUser.setStatus(theNewUser.getStatus());
                     this.theUserRepository.save(theActualUser);
+                    this.jsonResponsesService.setData(theActualUser);
+                    this.jsonResponsesService.setMessage("Usuario actualizado");
                     return ResponseEntity.status(HttpStatus.OK)
-                            .body("\"message" + "Usuario actualizado" + "\n" + theActualUser);
+                            .body(this.jsonResponsesService.getFinalJSON());
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario a actualizar");
+                this.jsonResponsesService.setMessage("No se encontro al usuario a actualizar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
 
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la actualizacion del usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la actualizacion del usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
 
     }
@@ -109,14 +126,20 @@ public class UsersController {
             User theActualUser = this.theUserRepository.findById(id).orElse(null);
             if (theActualUser != null) {
                 this.theUserRepository.delete(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se elimino correctamente al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se elimino correctamente al usuario:" + "\n" + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario a eliminar");
+                this.jsonResponsesService.setMessage("No se encontro al usuario a eliminar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la eliminacion del usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la eliminacion del usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
 
     }
@@ -132,18 +155,25 @@ public class UsersController {
             if (theActualUser != null && theActualRole != null) {
                 theActualUser.setRole(theActualRole);
                 this.theUserRepository.save(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se añadio correctamente el rol al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se añadio correctamente el rol al usuario:" + "\n" + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 if (theActualUser == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                    this.jsonResponsesService.setMessage("No se encontro al usuario");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro el rol");
+                    this.jsonResponsesService.setMessage("No se encontro el rol");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 }
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al añadir el rol al usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al añadir el rol al usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -155,14 +185,20 @@ public class UsersController {
             if (theActualUser != null) {
                 theActualUser.setRole(null);
                 this.theUserRepository.save(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se removio correctamente el rol al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se removio correctamente el rol al usuario:" + "\n" + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                this.jsonResponsesService.setMessage("No se encontro al usuario");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al remover el rol al usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al remover el rol al usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -177,25 +213,32 @@ public class UsersController {
             if (theActualUser != null && theCreditCard != null) {
                 for (CreditCard creditCard : theActualUser.getCreditCards()) {
                     if (theCreditCard.equals(creditCard)) {
+                        this.jsonResponsesService.setMessage("El usuario ya contiene esta tarjeta de credito");
                         return ResponseEntity.status(HttpStatus.CONFLICT)
-                                .body("El usuario ya contiene esta tarjeta de credito");
+                                .body(this.jsonResponsesService.getFinalJSON());
                     }
                 }
                 theActualUser.addCreditCard(theCreditCard);
                 this.theUserRepository.save(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se añadio correctamente la tarjeta de credito al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se añadio correctamente la tarjeta de credito al usuario:" + "\n"
-                                + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 if (theActualUser == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                    this.jsonResponsesService.setMessage("No se encontro al usuario");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro la tarjeta de credito");
+                    this.jsonResponsesService.setMessage("No se encontro la tarjeta de credito");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 }
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al añadir la tarjeta de credito al usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al añadir la tarjeta de credito al usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -208,18 +251,25 @@ public class UsersController {
             if (theActualUser != null && theCreditCard != null) {
                 theActualUser.removeCreditCard(theCreditCard);
                 this.theUserRepository.save(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se removio correctamente la tarjeta de credito al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se removio correctamente la tarjeta de credito al usuario:" + "\n" + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 if (theActualUser == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                    this.jsonResponsesService.setMessage("No se encontro al usuario");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro la tarjeta de credito");
+                    this.jsonResponsesService.setMessage("No se encontro la tarjeta de credito");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 }
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al remover la tarjeta de credito al usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al remover la tarjeta de credito al usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -234,18 +284,25 @@ public class UsersController {
             if (theActualUser != null && theUserProfile != null) {
                 theActualUser.setUserProfile(theUserProfile);
                 this.theUserRepository.save(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se añadio correctamente el perfil al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se añadio correctamente el perfil al usuario:" + "\n" + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 if (theActualUser == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                    this.jsonResponsesService.setMessage("No se encontro al usuario");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 } else {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro el perfil");
+                    this.jsonResponsesService.setMessage("No se encontro el perfil");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
                 }
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al añadir el perfil al usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al añadir el perfil al usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -257,14 +314,20 @@ public class UsersController {
             if (theActualUser != null) {
                 theActualUser.setUserProfile(null);
                 this.theUserRepository.save(theActualUser);
+                this.jsonResponsesService.setData(theActualUser);
+                this.jsonResponsesService.setMessage("Se removio correctamente el perfil al usuario");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se removio correctamente el perfil al usuario:" + "\n" + theActualUser);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                this.jsonResponsesService.setMessage("No se encontro al usuario");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al remover el perfil al usuario");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al remover el perfil al usuario" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 

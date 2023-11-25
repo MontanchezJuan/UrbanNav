@@ -79,8 +79,7 @@ public class SecurityController {
                 newUser.setCreated_at(LocalDateTime.now());
                 this.theUserRepository.save(newUser);
                 this.jsonResponsesService.setMessage("Usuario creado con exito");
-                String userJSON = jsonResponsesService.writeToJSON(newUser);
-                this.jsonResponsesService.setData(userJSON);
+                this.jsonResponsesService.setData(newUser);
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(this.jsonResponsesService.getFinalJSON());
             }
@@ -103,9 +102,8 @@ public class SecurityController {
                 // Map<String, Object> userObject = new HashMap<>();
                 // userObject.put("email", theUser.getEmail());
                 // userObject.put("role", theUser.getRole());
-                String userJSON = jsonResponsesService.writeToJSON(theUser);
                 this.jsonResponsesService.setMessage("Token valido");
-                this.jsonResponsesService.setData(userJSON);
+                this.jsonResponsesService.setData(theUser);
                 return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
                 this.jsonResponsesService.setMessage("Token no valido");
