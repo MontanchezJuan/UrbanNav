@@ -1,5 +1,7 @@
 package com.urbanNav.security.Controllers;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.urbanNav.security.Models.UserProfile;
 import com.urbanNav.security.Repositories.UserProfileRepository;
+import com.urbanNav.security.Services.JSONResponsesService;
 
 @CrossOrigin
 @RestController
@@ -23,21 +26,30 @@ import com.urbanNav.security.Repositories.UserProfileRepository;
 public class UserProfileController {
     @Autowired
     private UserProfileRepository theUserprofileRepository;
+    @Autowired
+    private JSONResponsesService jsonResponsesService;
 
     @GetMapping("")
     public ResponseEntity<?> index() {
         try {
             if (this.theUserprofileRepository.findAll() != null
                     && !this.theUserprofileRepository.findAll().isEmpty()) {
+                List<UserProfile> userProfiles = this.theUserprofileRepository.findAll();
+                this.jsonResponsesService.setData(userProfiles);
+                this.jsonResponsesService.setMessage("listado de Perfiles encontrado correctamente");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("listado de Perfiles" + "\n" + this.theUserprofileRepository.findAll());
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
+                this.jsonResponsesService.setMessage("No hay perfiles registrados");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("No hay perfiles registrados");
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al buscar perfiles");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al buscar perfiles" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -48,16 +60,22 @@ public class UserProfileController {
             UserProfile theActualProfile = this.theUserprofileRepository.getProfile(
                     userProfile.getNumberPhone()).orElse(null);
             if (theActualProfile != null) {
+                this.jsonResponsesService.setMessage("Ya existe un perfil con este telefono");
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("Ya existe un perfil con este telefono");
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 this.theUserprofileRepository.save(userProfile);
+                this.jsonResponsesService.setMessage("Perfil agregado con éxito");
+                this.jsonResponsesService.setData(userProfile);
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Perfil agregado con éxito." + "\n" + userProfile);
+                        .body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error al intentar crear el perfil");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al intentar crear el perfil" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -68,13 +86,19 @@ public class UserProfileController {
                     .findById(id)
                     .orElse(null);
             if (theUserProfile != null) {
-                return ResponseEntity.status(HttpStatus.OK).body(theUserProfile);
+                this.jsonResponsesService.setData(theUserProfile);
+                this.jsonResponsesService.setMessage("Perfil encontrado con exito");
+                return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al usuario");
+                this.jsonResponsesService.setMessage("No se encontro el perfil");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la busqueda del perfil");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la busqueda del perfil" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -87,7 +111,8 @@ public class UserProfileController {
                 if (theProfile.getNumberPhone().equals(theNewProfile.getNumberPhone()) == false
                         && this.theUserprofileRepository.getProfile(theNewProfile.getNumberPhone())
                                 .orElse(null) != null) {
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body("Ya existe un perfil con este telefono");
+                    this.jsonResponsesService.setMessage("Ya existe un perfil con este telefono");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(this.jsonResponsesService.getFinalJSON());
                 } else {
                     theProfile.setName(theNewProfile.getName());
                     theProfile.setLastName(theNewProfile.getLastName());
@@ -97,14 +122,20 @@ public class UserProfileController {
                     theProfile.setNumberPhone(theNewProfile.getNumberPhone());
                     theProfile.setStatus(theNewProfile.getStatus());
                     this.theUserprofileRepository.save(theProfile);
-                    return ResponseEntity.status(HttpStatus.OK).body("Perfil actualizado" + "\n" + theProfile);
+                    this.jsonResponsesService.setData(theProfile);
+                    this.jsonResponsesService.setMessage("Perfil actualizado");
+                    return ResponseEntity.status(HttpStatus.OK).body(this.jsonResponsesService.getFinalJSON());
                 }
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al perfil a actualizar");
+                this.jsonResponsesService.setMessage("No se encontro al perfil a actualizar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la actualizacion del perfil");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la actualizacion del perfil" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 
@@ -115,14 +146,20 @@ public class UserProfileController {
             UserProfile theProfile = this.theUserprofileRepository.findById(id).orElse(null);
             if (theProfile != null) {
                 this.theUserprofileRepository.delete(theProfile);
+                this.jsonResponsesService.setData(theProfile);
+                this.jsonResponsesService.setMessage("Se elimino correctamente al perfil");
                 return ResponseEntity.status(HttpStatus.OK)
-                        .body("Se elimino correctamente al perfil:" + "\n" + theProfile);
+                        .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontro al perfil a eliminar");
+                this.jsonResponsesService.setMessage("No se encontro al perfil a eliminar");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(this.jsonResponsesService.getFinalJSON());
             }
         } catch (Exception e) {
+            this.jsonResponsesService.setData(null);
+            this.jsonResponsesService.setError(e.toString());
+            this.jsonResponsesService.setMessage("Error en la eliminacion del perfil");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en la eliminacion del perfil" + "\n" + e.toString());
+                    .body(this.jsonResponsesService.getFinalJSON());
         }
     }
 }
