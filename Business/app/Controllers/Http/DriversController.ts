@@ -18,17 +18,19 @@ export default class DriversController {
       if (drivers && drivers.length > 0) {
         await Promise.all(
           drivers.map(async (driver) => {
-            let userResponse = await axios.get(
-              `${Env.get('MS-SECURITY')}/users/${driver.user_id}`,
-              {
-                headers: {
-                  Authorization: token,
-                },
-              }
-            )
-            console.log('llega')
-            driver.user = userResponse.data
-            console.log(driver.toJSON())
+            try {
+              let userResponse = await axios.get(
+                `${Env.get('MS-SECURITY')}/users/${driver.user_id}`,
+                {
+                  headers: {
+                    Authorization: token,
+                  },
+                }
+              )
+              driver.user = userResponse.data.data
+            } catch (error) {
+              driver.user = null
+            }
           })
         )
         return response.status(200).json({
@@ -57,18 +59,16 @@ export default class DriversController {
       let theRequest = request.toJSON()
       let token = theRequest.headers.authorization
       if (driver != null) {
-        axios
-          .get(`${Env.get('MS-SECURITY')}/users/${driver.user_id}`, {
+        try {
+          let userResponse = await axios.get(`${Env.get('MS-SECURITY')}/users/${driver.user_id}`, {
             headers: {
               Authorization: token,
             },
           })
-          .then((response) => {
-            if (driver) {
-              driver.user = response.data
-            }
-          })
-
+          driver.user = userResponse.data.data
+        } catch (error) {
+          driver.user = null
+        }
         return response
           .status(200)
           .json({ mensaje: 'registro del conductor encontrado', data: driver })
@@ -88,14 +88,18 @@ export default class DriversController {
       let theRequest = request.toJSON()
       let token = theRequest.headers.authorization
       const body = request.body()
-      let user: Driver = (
-        await axios.get(`${Env.get('MS-SECURITY')}/users/${body.user_id}`, {
-          headers: {
-            Authorization: token,
-          },
-        })
-      ).data
-
+      let user
+      try {
+        user = (
+          await axios.get(`${Env.get('MS-SECURITY')}/users/${body.user_id}`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+        ).data
+      } catch (error) {
+        user = null
+      }
       let conflictDriver: Driver | null = await Driver.query()
         .where('user_id', body.user_id)
         .first()
@@ -124,18 +128,40 @@ export default class DriversController {
       actualDriver.is_active = newDriver.is_active
       actualDriver.status = newDriver.status
       if (actualDriver.user_id != newDriver.user_id) {
-        if (
-          (await Driver.query().where('driver_id', newDriver.user_id).first()) == null &&
-          (await axios.get(`${Env.get('MS-SECURITY')}/users/${newDriver.user_id}`)).status == 200
-        ) {
+        let theRequest = request.toJSON()
+        let token = theRequest.headers.authorization
+        let conflictDriver: Driver | null = await Driver.query()
+          .where('user_id', newDriver.user_id)
+          .first()
+        let userResponse
+        try {
+          userResponse = await axios.get(`${Env.get('MS-SECURITY')}/users/${newDriver.user_id}`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+        } catch (error) {
+          userResponse = null
+        }
+        if (conflictDriver == null && userResponse != null) {
           actualDriver.user_id = newDriver.user_id
-          actualDriver.user = await axios.get(
-            `${Env.get('MS-SECURITY')}/users/${newDriver.user_id}`
-          )
+          try {
+            actualDriver.user = await axios.get(
+              `${Env.get('MS-SECURITY')}/users/${newDriver.user_id}`,
+              {
+                headers: {
+                  Authorization: token,
+                },
+              }
+            )
+          } catch (error) {
+            actualDriver.user = null
+          }
           actualDriver.save()
           return response.status(200).json({ mensaje: 'conductor actualizado', data: actualDriver })
         } else {
-          if ((await Driver.query().where('driver_id', newDriver.user_id).first()) != null) {
+          console.log('llega')
+          if ((await Driver.query().where('user_id', newDriver.user_id).first()) != null) {
             return response.status(400).json({
               mensaje: 'ya hay un conductor asociado al usuario referenciado',
               data: actualDriver,
@@ -147,9 +173,8 @@ export default class DriversController {
           }
         }
       } else {
-        actualDriver.user_id = newDriver.user_id
-        actualDriver.user = await axios.get(`${Env.get('MS-SECURITY')}/users/${newDriver.user_id}`)
         actualDriver.save()
+        return response.status(200).json({ mensaje: 'conductor actualizado', data: actualDriver })
       }
     } catch (error) {
       return response

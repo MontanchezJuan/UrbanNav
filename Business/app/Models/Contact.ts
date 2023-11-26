@@ -10,6 +10,9 @@ export default class Contact extends BaseModel {
   public name: string
 
   @column()
+  public customer_id: number
+
+  @column()
   public email: string
 
   @column()

@@ -9,6 +9,8 @@ export default class Customer extends BaseModel {
 
   @column()
   public user_id: string
+  @column()
+  public user: any
 
   @column()
   public status: number
@@ -25,7 +27,7 @@ export default class Customer extends BaseModel {
   public contacts: HasMany<typeof Contact>
 
   @hasMany(() => Service, {
-    foreignKey: 'service_id',
+    foreignKey: 'customer_id',
   })
   public services: HasMany<typeof Service>
 }
