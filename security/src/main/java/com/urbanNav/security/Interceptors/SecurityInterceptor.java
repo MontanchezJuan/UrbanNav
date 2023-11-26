@@ -22,6 +22,10 @@ public class SecurityInterceptor implements HandlerInterceptor {
             Object handler)
             throws Exception {
         try {
+            if (request.getHeader("Authorization") == null) {
+                System.err.println("No se encuentra Authorization");
+                return false;
+            }
             boolean success = this.validatorService.validationRolePermission(request,
                     request.getRequestURI(),
                     request.getMethod());
