@@ -18,6 +18,7 @@ public class ValidatorsService {
 
     @Autowired
     private PermissionRepository thePermissionRepository;
+
     @Autowired
     private UserRepository theUserRepository;
 
@@ -27,6 +28,7 @@ public class ValidatorsService {
         if (url.equals("/roles/656021611ae5d15c7d6d2517") && method.equals("DELETE")) {
             return false;
         }
+
         User theUser = this.getUser(request);
         if (theUser != null) {
             Role theRole = theUser.getRole();
@@ -53,7 +55,6 @@ public class ValidatorsService {
         }
         System.out.println("el usuario no existe");
         return false;
-
     }
 
     public User getUser(final HttpServletRequest request) {
