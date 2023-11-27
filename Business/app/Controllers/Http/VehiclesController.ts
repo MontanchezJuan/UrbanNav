@@ -66,7 +66,6 @@ export default class VehiclesController {
         try {
             const body = request.body()
             let theVehicle: Vehicle = await Vehicle.findOrFail(params.id)
-            console.log(body);
                 theVehicle.driver_id = body.driver_id
                 theVehicle.license_plate= body.license_plate
                 theVehicle.model= body.model
