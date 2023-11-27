@@ -7,6 +7,9 @@ export default class Contact extends BaseModel {
   public id: number
 
   @column()
+  public customer_id: number
+  
+  @column()
   public name: string
 
   @column()

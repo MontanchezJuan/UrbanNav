@@ -10,7 +10,6 @@ export default class extends BaseSchema {
       table.string('license_plate').notNullable().unique()
       table.string('model').notNullable()
       table.integer('capacity').notNullable()
-      table.string('name').notNullable()
       table.string('color').notNullable()
       table.double('velocity').notNullable()
       table.integer('status').notNullable()

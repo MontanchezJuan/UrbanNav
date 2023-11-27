@@ -64,37 +64,42 @@ export default class VehiclesController {
     // Update
     public async update({ params, request, response }: HttpContextContract) {
         try {
-            const body = request.body();
-            const theVehicle = await Vehicle.findOrFail(params.id);
-            theVehicle.merge({
-                driver_id: body.driver_id,
-                license_plate: body.license_plate,
-                model: body.model,
-                capacity: body.capacity,
-                name: body.name,
-                color: body.color,
-                velocity: body.velocity,
-                status: body.status,
-            });
+            const body = request.body()
+            let theVehicle: Vehicle = await Vehicle.findOrFail(params.id)
+                theVehicle.driver_id = body.driver_id
+                theVehicle.license_plate= body.license_plate
+                theVehicle.model= body.model
+                theVehicle.capacity= body.capacity
+                theVehicle.color= body.color
+                theVehicle.velocity= body.velocity
+                theVehicle.status= body.status
             // Guardar en la base de datos el registro actualizado
-            await theVehicle.save();
-            return response.status(200).json({ message: 'Vehículo actualizado exitosamente', data: theVehicle });
+            await theVehicle.save()
+            console.log("guardado", theVehicle);
+            return response.status(200).json({ message: 'Vehículo actualizado exitosamente', data: theVehicle })
+
         } catch (error) {
             console.error(error);
-            return response.status(500).json({ message: 'Error al actualizar el vehículo', data: error.message });
+            return response.status(500).json({ message: 'Error al actualizar el vehículo', data: error.message })
         }
     }
 
     // Delete
     public async destroy({ params, response }: HttpContextContract) {
-        try {
-            const theVehicle = await Vehicle.findOrFail(params.id);
-            // Eliminar el vehículo de la base de datos
-            await theVehicle.delete();
-            return response.status(204).json({ message: 'Vehículo eliminado exitosamente' });
+        try {    
+          const vehicle: Vehicle = await Vehicle.findOrFail(params.id)
+          if (vehicle) {
+            vehicle.delete()
+            return response.status(200).json({ mensaje: 'vehículo eliminado', data: vehicle })
+          } else {
+            return response
+              .status(400)
+              .json({ mensaje: 'no se encuentra el vehículo a eliminar', data: vehicle })
+          }
         } catch (error) {
-            console.error(error);
-            return response.status(500).json({ message: 'Error al eliminar el vehículo', data: error.message });
-        }
-    }
+          return response
+            .status(500)
+            .json({ mensaje: 'Error en la eliminacion del vehículo', data: error })
+        }
+      }
 }
