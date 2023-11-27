@@ -1,64 +1,62 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import Vehicle from 'App/Models/Vehicle';
-
+import Vehicle from 'App/Models/Vehicle'
 
 export default class VehiclesController {
+  public async store({ request, response }: HttpContextContract) {
+    try {
+      const body = request.body()
+      const theVehicle = await Vehicle.create(body)
+      return response
+        .status(201)
+        .json({ message: 'Vehículo creado exitosamente', data: theVehicle })
+    } catch (error) {
+      console.error(error)
+      return response
+        .status(500)
+        .json({ message: 'Error al crear el vehículo', data: error.message })
+    }
+  }
+  //Get
+  public async index({ request, response }: HttpContextContract) {
+    try {
+      const page = request.input('page', 1)
+      const perPage = request.input('per_page', 20)
+      let vehicles: Vehicle[] = await Vehicle.query().preload('driver').paginate(page, perPage)
+      if (vehicles && vehicles.length > 0) {
+        return response
+          .status(200)
+          .json({ mensaje: 'registros de vehículos encontrados', data: vehicles })
+      } else {
+        return response
+          .status(404)
+          .json({ mensaje: 'No se encontraron registros de vehículos', data: vehicles })
+      }
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ mensaje: 'Error en la busqueda de vehículos', data: error })
+    }
+  }
 
-    public async store({ request, response }: HttpContextContract) {
-        try {
-            const body = request.body();
-            const theVehicle = await Vehicle.create(body);
-            return response.status(201).json({ message: 'Vehículo creado exitosamente', data: theVehicle });
-        } catch (error) {
-            console.error(error);
-            return response.status(500).json({ message: 'Error al crear el vehículo', data: error.message });
-        }
-    }
-    //Get
-    public async index({ request, response }: HttpContextContract) {
-        try{
-            const page = request.input('page', 1);
-            const perPage = request.input("per_page", 20);
-            let vehicles:Vehicle[]= await Vehicle.query()
-            .preload('driver')
-            .paginate(page, perPage)
-            if(vehicles && vehicles.length > 0){
-            return response
-            .status(200)
-            .json({ mensaje: 'registros de vehículos encontrados', data: vehicles })
-            } else {
-            return response
-              .status(404)
-              .json({ mensaje: 'No se encontraron registros de vehículos', data: vehicles })
-          }
-        }catch (error){
-            return response
-            .status(500)
-            .json({ mensaje: 'Error en la busqueda de vehículos', data: error 
-            })
-        }
-    }
-    
-    public async show({ params, response }: HttpContextContract) {
-        try{
-            let vehicle: Vehicle | null = await Vehicle.query()
-            .where('id', params.id)
-            .preload('driver')
-            .first()
-            if(vehicle != null){
-                return response
-                .status(200)
-                .json({ mensaje: 'registro del vehículo encontrado', data: vehicle })
-            } else {
-                return response
-                .status(404)
-                .json({ mensaje: 'No se encontro registro del vehículo', data: vehicle }) 
-            }
-        }catch (error){
-            return response
-            .status(500)
-            .json({ mensaje: 'Error en la busqueda del vehículo', data: error })
-        }
+  public async show({ params, response }: HttpContextContract) {
+    try {
+      let vehicle: Vehicle | null = await Vehicle.query()
+        .where('id', params.id)
+        .preload('driver')
+        .first()
+      if (vehicle != null) {
+        return response
+          .status(200)
+          .json({ mensaje: 'registro del vehículo encontrado', data: vehicle })
+      } else {
+        return response
+          .status(404)
+          .json({ mensaje: 'No se encontro registro del vehículo', data: vehicle })
+      }
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ mensaje: 'Error en la busqueda del vehículo', data: error })
     }
     
     // Update
@@ -83,6 +81,7 @@ export default class VehiclesController {
             return response.status(500).json({ message: 'Error al actualizar el vehículo', data: error.message })
         }
     }
+  }
 
     // Delete
     public async destroy({ params, response }: HttpContextContract) {
@@ -102,4 +101,5 @@ export default class VehiclesController {
             .json({ mensaje: 'Error en la eliminacion del vehículo', data: error })
         }
       }
+
 }
