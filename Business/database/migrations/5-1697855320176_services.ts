@@ -5,7 +5,7 @@ export default class extends BaseSchema {
 
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').primary()
       table
         .integer('customer_id')
         .unsigned()
@@ -14,7 +14,7 @@ export default class extends BaseSchema {
         .notNullable()
       table.integer('trip_id').unsigned().references('trips.id').onDelete('CASCADE')
       table.double('price')
-      table.integer('status')
+      table.integer('status').notNullable().defaultTo(0)
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
