@@ -8,4 +8,4 @@ Route.group(() => {
   Route.put('/licenses/:id', 'LicensesController.update')
   Route.delete('/licenses/:id', 'LicensesController.destroy')
 })
-//.middleware(['security'])
+.middleware(['security'])

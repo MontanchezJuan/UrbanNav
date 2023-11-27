@@ -21,10 +21,7 @@ export default class Vehicle extends BaseModel {
 
   @column()
   public capacity: number
-
-  @column()
-  public name: string
-
+  
   @column()
   public color: string
 

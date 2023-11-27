@@ -8,4 +8,4 @@ Route.group(() => {
   Route.put('/commentsandratings/:id', 'CommentsandRatingsController.update')
   Route.delete('/commentsandratings/:id', 'CommentsandRatingsController.destroy')
 })
-//.middleware(['security'])
+.middleware(['security'])
