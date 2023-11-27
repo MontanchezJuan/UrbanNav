@@ -7,7 +7,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.integer('service_id').unsigned().references('services.id').onDelete('CASCADE')
-      table.string('credict_card_id').notNullable()
+      table.string('credit_card_id').notNullable()
       table.integer('status').notNullable()
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })

@@ -122,7 +122,7 @@ export default class DriversController {
       let newDriver = request.body()
       let actualDriver: Driver = await Driver.findOrFail(params.id)
       actualDriver.is_active = newDriver.is_active
-      actualDriver.status = newDriver.status
+      actualDriver.status = newDriver.statusz
       if (actualDriver.user_id != newDriver.user_id) {
         if (
           (await Driver.query().where('driver_id', newDriver.user_id).first()) == null &&
