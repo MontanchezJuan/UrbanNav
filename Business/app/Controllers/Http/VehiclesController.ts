@@ -58,48 +58,49 @@ export default class VehiclesController {
         .status(500)
         .json({ mensaje: 'Error en la busqueda del vehículo', data: error })
     }
-    
-    // Update
-    public async update({ params, request, response }: HttpContextContract) {
-        try {
-            const body = request.body()
-            let theVehicle: Vehicle = await Vehicle.findOrFail(params.id)
-                theVehicle.driver_id = body.driver_id
-                theVehicle.license_plate= body.license_plate
-                theVehicle.model= body.model
-                theVehicle.capacity= body.capacity
-                theVehicle.color= body.color
-                theVehicle.velocity= body.velocity
-                theVehicle.status= body.status
-            // Guardar en la base de datos el registro actualizado
-            await theVehicle.save()
-            console.log("guardado", theVehicle);
-            return response.status(200).json({ message: 'Vehículo actualizado exitosamente', data: theVehicle })
-
-        } catch (error) {
-            console.error(error);
-            return response.status(500).json({ message: 'Error al actualizar el vehículo', data: error.message })
-        }
+  }
+  // Update
+  public async update({ params, request, response }: HttpContextContract) {
+    try {
+      const body = request.body()
+      let theVehicle: Vehicle = await Vehicle.findOrFail(params.id)
+      theVehicle.driver_id = body.driver_id
+      theVehicle.license_plate = body.license_plate
+      theVehicle.model = body.model
+      theVehicle.capacity = body.capacity
+      theVehicle.color = body.color
+      theVehicle.velocity = body.velocity
+      theVehicle.status = body.status
+      // Guardar en la base de datos el registro actualizado
+      await theVehicle.save()
+      console.log('guardado', theVehicle)
+      return response
+        .status(200)
+        .json({ message: 'Vehículo actualizado exitosamente', data: theVehicle })
+    } catch (error) {
+      console.error(error)
+      return response
+        .status(500)
+        .json({ message: 'Error al actualizar el vehículo', data: error.message })
     }
   }
 
-    // Delete
-    public async destroy({ params, response }: HttpContextContract) {
-        try {    
-          const vehicle: Vehicle = await Vehicle.findOrFail(params.id)
-          if (vehicle) {
-            vehicle.delete()
-            return response.status(200).json({ mensaje: 'vehículo eliminado', data: vehicle })
-          } else {
-            return response
-              .status(400)
-              .json({ mensaje: 'no se encuentra el vehículo a eliminar', data: vehicle })
-          }
-        } catch (error) {
-          return response
-            .status(500)
-            .json({ mensaje: 'Error en la eliminacion del vehículo', data: error })
-        }
+  // Delete
+  public async destroy({ params, response }: HttpContextContract) {
+    try {
+      const vehicle: Vehicle = await Vehicle.findOrFail(params.id)
+      if (vehicle) {
+        vehicle.delete()
+        return response.status(200).json({ mensaje: 'vehículo eliminado', data: vehicle })
+      } else {
+        return response
+          .status(400)
+          .json({ mensaje: 'no se encuentra el vehículo a eliminar', data: vehicle })
       }
-
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ mensaje: 'Error en la eliminacion del vehículo', data: error })
+    }
+  }
 }
