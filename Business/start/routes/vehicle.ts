@@ -9,4 +9,4 @@ Route.group(() => {
   Route.put('/vehicles/:id', 'VehiclesController.update')
   Route.delete('/vehicles/:id', 'VehiclesController.destroy')
 })
-//.middleware(['security'])
+.middleware(['security'])

@@ -6,22 +6,16 @@ import {
   belongsTo,
   BelongsTo,
   HasOne,
-  hasMany,
-  HasMany,
+  manyToMany,
+  ManyToMany,
 } from '@ioc:Adonis/Lucid/Orm'
 import Driver from './Driver'
 import Service from './Service'
-import TripPoint from './TripPoint'
+import Point from './Point'
 
 export default class Trip extends BaseModel {
   @column({ isPrimary: true })
   public id: number
-
-  @column()
-  public origin_id: number
-
-  @column()
-  public destination_id: number
 
   @column()
   public driver_id: number
@@ -48,10 +42,12 @@ export default class Trip extends BaseModel {
   })
   public service: HasOne<typeof Service>
 
-  @hasMany(() => TripPoint, {
-    foreignKey: 'trip_id',
+  @manyToMany(() => Point, {
+    pivotTable: 'trip_points',
+    pivotForeignKey: 'point_id',
+    pivotRelatedForeignKey: 'trip_id',
   })
-  public tripPoint: HasMany<typeof TripPoint>
+  public points: ManyToMany<typeof Point>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

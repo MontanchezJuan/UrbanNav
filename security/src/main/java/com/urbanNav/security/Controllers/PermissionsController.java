@@ -57,7 +57,7 @@ public class PermissionsController {
                         .body(this.jsonResponsesService.getFinalJSON());
             } else {
                 this.thePermissionRepository.save(newPermission);
-                this.jsonResponsesService.setData(thePermission);
+                this.jsonResponsesService.setData(newPermission);
                 this.jsonResponsesService.setMessage("Permiso agregado con éxito");
                 return ResponseEntity.status(HttpStatus.OK)
                         .body(this.jsonResponsesService.getFinalJSON());

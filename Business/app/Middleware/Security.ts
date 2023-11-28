@@ -21,7 +21,7 @@ export default class Security {
             },
           }
         )
-        console.log('La respuesta de ms-security >' + result.data + '<')
+        console.log('La respuesta de ms-security >' + result.status + '<')
         if (result.status == 200) {
           await next()
         } else {
@@ -29,10 +29,12 @@ export default class Security {
           return response.status(401)
         }
       } catch (error) {
-        return response.status(401)
+        return response
+          .status(401)
+          .json({ message: 'Error el intentar validar el permiso', error: error.message })
       }
     } else {
-      return response.status(401)
+      return response.status(401).json({ message: 'No se encuantra el token' })
     }
   }
 }
