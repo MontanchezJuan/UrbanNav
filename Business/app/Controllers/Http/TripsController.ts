@@ -2,50 +2,89 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Trip from 'App/Models/Trip'
 
 export default class TripsController {
-  public async index({ request }: HttpContextContract) {
-    const page = request.input('page', 1)
-    const perPage = request.input('per_page', 20)
-    // eslint-disable-next-line prettier/prettier
-    return await Trip.query()
-      .preload('driver')
-      .preload('service')
-      .preload('tripPoint')
-      .paginate(page, perPage)
-    // metodo para retornar a todos los conductores
-    // falta precargar los vehiculos y la licensia
+  public async index({ request, response }: HttpContextContract) {
+    try {
+      const page = request.input('page', 1)
+      const perPage = request.input('per_page', 20)
+      let trips: Trip[] = await Trip.query()
+        .preload('driver')
+        .preload('service')
+        .preload('points')
+        .paginate(page, perPage)
+      if (trips && trips.length > 0) {
+        return response
+          .status(200)
+          .json({ mensaje: 'registros de viajes encontrados', data: trips })
+      } else {
+        return response
+          .status(404)
+          .json({ mensaje: 'No se encontraron registros de viajes', data: trips })
+      }
+    } catch (error) {
+      return response.status(500).json({ mensaje: 'Error en la busqueda de viajes', data: error })
+    }
   }
-  public async conditionalIndex({ request }: HttpContextContract) {
-    // retornar los conductores que cumplan ciertas condiciones
+  public async show({ params, response }: HttpContextContract) {
+    try {
+      let trip: Trip | null = await Trip.query()
+        .where('id', params.id)
+        .preload('driver')
+        .preload('service')
+        .preload('points')
+        .first()
+      if (trip != null) {
+        return response.status(200).json({ mensaje: 'registro del viaje encontrado', data: trip })
+      } else {
+        return response
+          .status(404)
+          .json({ mensaje: 'No se encontro registro del viaje', data: trip })
+      }
+    } catch (error) {
+      return response.status(500).json({ mensaje: 'Error en la busqueda del viaje', data: error })
+    }
   }
-  public async show({ params }: HttpContextContract) {
-    return await Trip.query().where('id', params.id).preload('driver').preload('service')
-    // metodo para retornar a un conductor con toda su informacion asociada
-    //falta precargar los vehiculos y la licensia
+  public async store({ request, response }: HttpContextContract) {
+    try {
+      const body = request.body()
+      const trip = await Trip.create(body)
+      return response.status(201).json({ message: 'viaje creado exitosamente', data: trip })
+    } catch (error) {
+      console.error(error)
+      return response.status(500).json({ message: 'Error al crear el viaje', data: error.message })
+    }
   }
-  public async conditionalShow() {
-    // metodo para retornar a un conductor con la informacion asociada necesaria en las condiciones
-  }
-  public async store({ request }: HttpContextContract) {
-    let body = request.body()
-    const trip = await Trip.create(body)
-    return trip
-    // metodo para crear un registro de conductor en la base de datos
-  }
-  public async update({ params, request }: HttpContextContract) {
-    const body = request.body()
-    const trip: Trip = await Trip.findOrFail(params.id)
-    trip.driver_id = body.driver_id
-    trip.started_at = body.started_at
-    trip.finished_at = body.finished_at
-    trip.distance = body.distance
-    trip.status = body.status
-    return trip.save()
-    //metodo para actualizar la informacion de un conductor
+  public async update({ params, request, response }: HttpContextContract) {
+    try {
+      const body = request.body()
+      const trip: Trip = await Trip.findOrFail(params.id)
+      trip.driver_id = body.driver_id
+      trip.started_at = body.started_at
+      trip.finished_at = body.finished_at
+      trip.distance = body.distance
+      trip.status = body.status
+      trip.save()
+      return response.status(200).json({ message: 'Viaje actualizado exitosamente', data: trip })
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ message: 'Error al actualizar el viaje', data: error.message })
+    }
   }
   public async destroy({ params, response }: HttpContextContract) {
-    const trip: Trip = await Trip.findOrFail(params.id)
-    response.status(204)
-    return trip.delete()
-    //metodo para eliminar un registro de conductor, recordar que la eliminacion sera solo una actualizacion de estado
+    try {
+      const trip: Trip = await Trip.findOrFail(params.id)
+      if (trip) {
+        trip.delete()
+        return response.status(200).json({ mensaje: 'viaje eliminado', data: trip })
+      } else {
+        return response
+          .status(400)
+          .json({ mensaje: 'no se encuentra el viaje a eliminar', data: trip })
+      }
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ mensaje: 'Error en la eliminacion del viaje', data: error })
+    }
   }
 }
