@@ -1,7 +1,6 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import axios from 'axios'
 import Env from '@ioc:Adonis/Core/Env'
-import { Response } from '@adonisjs/core/build/standalone'
 
 export default class Security {
   public async handle({ request, response }: HttpContextContract, next: () => Promise<void>) {

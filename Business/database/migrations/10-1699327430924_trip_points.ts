@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('trip_id').unsigned().references('trips.id').onDelete('CASCADE')
+      table.integer('trip_id').unsigned().references('trips.id').onDelete('CASCADE').notNullable()
       table.string('name').notNullable()
       table.double('latitude').notNullable()
       table.double('longitude').notNullable()
@@ -22,5 +22,5 @@ export default class extends BaseSchema {
 
   public async down() {
     this.schema.dropTable(this.tableName)
-  }
+  }
 }

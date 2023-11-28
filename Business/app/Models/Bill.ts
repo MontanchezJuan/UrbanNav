@@ -8,13 +8,9 @@ export default class Bill extends BaseModel {
 
   @column()
   public service_id: number
-  @belongsTo(() => Service, {
-    foreignKey: 'service_id',
-  })
-  service: BelongsTo<typeof Service>
 
   @column()
-  public credict_card_id: string
+  public credit_card_id: string
 
   @column()
   public status: number
@@ -24,4 +20,9 @@ export default class Bill extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @belongsTo(() => Service, {
+    foreignKey: 'service_id',
+  })
+  public service: BelongsTo<typeof Service>
 }
