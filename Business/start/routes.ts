@@ -28,6 +28,8 @@ import './routes/customer.ts'
 import './routes/license.ts'
 import './routes/vehicle.ts'
 import './routes/contact.ts'
+import './routes/point.ts'
+import './routes/tripPoints.ts'
 
 Route.get('/', async () => {
   return { hello: 'world' }
