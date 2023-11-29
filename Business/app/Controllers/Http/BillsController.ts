@@ -1,12 +1,32 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Env from '@ioc:Adonis/Core/Env'
 import Bill from 'App/Models/Bill'
+import axios from 'axios'
 
 export default class BillsController {
   public async store({ request, response }: HttpContextContract) {
     try {
       const body = request.body()
-      const bill = await Bill.create(body)
-      return response.status(201).json({ message: 'Factura creada exitosamente', data: bill })
+      let card
+      try {
+        let theRequest = request.toJSON()
+        let token = theRequest.headers.authorization
+        card = (
+          await axios.get(`${Env.get('MS-SECURITY')}/credit-card/${body.credit_card_id}`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+        ).data
+      } catch (error) {
+        card = null
+      }
+      if (card != null) {
+        const bill = await Bill.create(body)
+        return response.status(201).json({ message: 'Factura creada exitosamente', data: bill })
+      } else {
+        return response.status(400).json({ mensaje: 'No se encontro la tarjeta de credito' })
+      }
     } catch (error) {
       console.error(error)
       return response.status(500).json({
