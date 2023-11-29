@@ -7,7 +7,6 @@ export default class BillsController {
   public async store({ request, response }: HttpContextContract) {
     try {
       const body = request.body()
-      const bill = await Bill.create(body)
       let card
       try {
         let theRequest = request.toJSON()
@@ -23,6 +22,7 @@ export default class BillsController {
         card = null
       }
       if (card != null) {
+        const bill = await Bill.create(body)
         return response.status(201).json({ message: 'Factura creada exitosamente', data: bill })
       } else {
         return response.status(400).json({ mensaje: 'No se encontro la tarjeta de credito' })
