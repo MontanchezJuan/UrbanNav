@@ -62,25 +62,25 @@ export default class ServicesController {
             const service = await Service.create(body)
             return response
               .status(201)
-              .json({ message: 'Servicio creado exitosamente', data: service })
+              .json({ mensaje: 'Servicio creado exitosamente', data: service })
           } else {
             return response
               .status(404)
-              .json({ message: 'No se encontro el viaje referenciado', data: body })
+              .json({ mensaje: 'No se encontro el viaje referenciado', data: body })
           }
         }
         const service = await Service.create(body)
-        return response.status(201).json({ message: 'Servicio creado exitosamente', data: service })
+        return response.status(201).json({ mensaje: 'Servicio creado exitosamente', data: service })
       } else {
         return response
           .status(404)
-          .json({ message: 'No se encontro el cliente referenciado', data: body })
+          .json({ mensaje: 'No se encontro el cliente referenciado', data: body })
       }
     } catch (error) {
       console.error(error)
       return response
         .status(500)
-        .json({ message: 'Error al crear el servicio', data: error.message })
+        .json({ mensaje: 'Error al crear el servicio', data: error.mensaje })
     }
   }
   public async update({ params, request, response }: HttpContextContract) {
@@ -96,7 +96,7 @@ export default class ServicesController {
           } else {
             return response
               .status(404)
-              .json({ message: 'No se encontro el cliente referenciado', data: body })
+              .json({ mensaje: 'No se encontro el cliente referenciado', data: body })
           }
         }
         if (service.trip_id != body.trip_id) {
@@ -105,16 +105,16 @@ export default class ServicesController {
           } else {
             return response
               .status(404)
-              .json({ message: 'No se encontro el viaje referenciado', data: body })
+              .json({ mensaje: 'No se encontro el viaje referenciado', data: body })
           }
         }
         service.save()
-        return response.status(201).json({ message: 'Servicio actualizado con exito', data: body })
+        return response.status(201).json({ mensaje: 'Servicio actualizado con exito', data: body })
       }
     } catch (error) {
       return response
         .status(500)
-        .json({ message: 'Error al crear el servicio', data: error.message })
+        .json({ mensaje: 'Error al crear el servicio', data: error.mensaje })
     }
   }
   public async destroy({ params, response }: HttpContextContract) {
