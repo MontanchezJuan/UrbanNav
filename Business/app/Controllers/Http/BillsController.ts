@@ -1,6 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Bill from 'App/Models/Bill'
-import License from 'App/Models/License'
 
 export default class BillsController {
   public async store({ request, response }: HttpContextContract) {
