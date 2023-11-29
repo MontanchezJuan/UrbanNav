@@ -16,10 +16,7 @@ export default class CommentandRating extends BaseModel {
   public service: BelongsTo<typeof Service>
 
   @column()
-  public sender_id: number
-
-  @column()
-  public receptor_id: number
+  public byCustomer: boolean
 
   @column()
   public description: string
