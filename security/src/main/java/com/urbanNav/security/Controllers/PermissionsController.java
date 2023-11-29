@@ -102,7 +102,7 @@ public class PermissionsController {
                         || thePermission.getMethod().equals(theNewPermission.getMethod()) == false)
                         && this.thePermissionRepository
                                 .getPermission(theNewPermission.getRoute(), theNewPermission.getMethod())
-                                .orElse(null) == null) {
+                                .orElse(null) != null) {
                     this.jsonResponsesService.setMessage("Ya existe un permiso con esta ruta y metodo");
                     return ResponseEntity.status(HttpStatus.CONFLICT)
                             .body(this.jsonResponsesService.getFinalJSON());
