@@ -1,6 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Bill from 'App/Models/Bill'
-import License from 'App/Models/License'
 
 export default class BillsController {
   public async store({ request, response }: HttpContextContract) {
@@ -38,7 +37,7 @@ export default class BillsController {
 
   public async show({ params, response }: HttpContextContract) {
     try {
-      let bill: Bill | null = await Bill.query().where('id', params.id)
+      let bill: Bill | null = await Bill.query().where('id', params.id).first()
       if (bill != null) {
         return response
           .status(200)
