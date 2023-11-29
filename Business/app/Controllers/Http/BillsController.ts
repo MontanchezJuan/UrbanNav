@@ -37,7 +37,7 @@ export default class BillsController {
 
   public async show({ params, response }: HttpContextContract) {
     try {
-      let bill: Bill | null = await Bill.query().where('id', params.id)
+      let bill: Bill | null = await Bill.query().where('id', params.id).first()
       if (bill != null) {
         return response
           .status(200)
