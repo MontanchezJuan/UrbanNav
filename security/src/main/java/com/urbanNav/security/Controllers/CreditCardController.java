@@ -70,7 +70,6 @@ public class CreditCardController {
             } else {
                 card.setCardCVV(encryp.convertirSHA256(card.getCardCVV()));
                 card.setCardNumber(encryp.convertirSHA256(card.getCardNumber()));
-                card.setExpiryDate(encryp.convertirSHA256(card.getExpiryDate()));
                 this.cardRepository.save(card);
                 this.jsonResponsesService.setMessage("Tarjeta de credito agregado con éxito");
                 this.jsonResponsesService.setData(card);
