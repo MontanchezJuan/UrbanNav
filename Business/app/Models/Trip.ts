@@ -44,8 +44,8 @@ export default class Trip extends BaseModel {
 
   @manyToMany(() => Point, {
     pivotTable: 'trip_points',
-    pivotForeignKey: 'point_id',
-    pivotRelatedForeignKey: 'trip_id',
+    pivotForeignKey: 'trip_id',
+    pivotRelatedForeignKey: 'point_id',
   })
   public points: ManyToMany<typeof Point>
 
