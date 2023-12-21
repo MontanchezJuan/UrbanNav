@@ -126,6 +126,8 @@ export default class DriversController {
       let newDriver = request.body()
       let actualDriver: Driver = await Driver.findOrFail(params.id)
       actualDriver.is_active = newDriver.is_active
+      actualDriver.latitude = newDriver.latitude
+      actualDriver.longitude = newDriver.longitude
       actualDriver.status = newDriver.status
       if (actualDriver.user_id != newDriver.user_id) {
         let theRequest = request.toJSON()

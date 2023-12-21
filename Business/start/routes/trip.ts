@@ -7,5 +7,6 @@ Route.group(() => {
   Route.get('/trips/:id', 'TripsController.show')
   Route.put('/trips/:id', 'TripsController.update')
   Route.delete('/trips/:id', 'TripsController.destroy')
+  Route.get('/trips/get/route', 'TripsController.getRoute')
 })
-.middleware(['security'])
+// .middleware(['security'])

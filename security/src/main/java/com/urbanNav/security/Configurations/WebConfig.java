@@ -11,13 +11,13 @@ import com.urbanNav.security.Interceptors.SecurityInterceptor;
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
-    @Autowired
-    private SecurityInterceptor securityInterceptor;
+    // @Autowired
+    // private SecurityInterceptor securityInterceptor;
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(securityInterceptor)
-        .excludePathPatterns("/security/**")
-        .addPathPatterns("/**");
-    }
+    // @Override
+    // public void addInterceptors(InterceptorRegistry registry) {
+    //     registry.addInterceptor(securityInterceptor)
+    //     .excludePathPatterns("/security/**")
+    //     .addPathPatterns("/**");
+    // }
 }
