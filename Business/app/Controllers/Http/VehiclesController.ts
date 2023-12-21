@@ -62,7 +62,7 @@ export default class VehiclesController {
   // Update
   public async update({ params, request, response }: HttpContextContract) {
     try {
-      const body = request.body()
+      const body = JSON.parse(request.body())
       let theVehicle: Vehicle = await Vehicle.findOrFail(params.id)
       theVehicle.driver_id = body.driver_id
       theVehicle.license_plate = body.license_plate
