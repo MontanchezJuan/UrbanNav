@@ -2,8 +2,11 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Customer from 'App/Models/Customer'
 import Service from 'App/Models/Service'
 import Trip from 'App/Models/Trip'
+import TripsController from './TripsController'
+import { HttpContext } from '@adonisjs/core/build/standalone'
 
 export default class ServicesController {
+  public tripController = new TripsController()
   public async index({ request, response }: HttpContextContract) {
     try {
       const page = request.input('page', 1)
@@ -56,10 +59,14 @@ export default class ServicesController {
   public async store({ request, response }: HttpContextContract) {
     try {
       const body = request.body()
-      if ((await Customer.query().where('id', body.customer_id).first()) != null) {
+      let customer = await Customer.query().where('user_id', body.service.customer_id).first()
+      body.service.customer_id = customer?.id
+      if ((await Customer.query().where('id', body.service.customer_id).first()) != null) {
         if (body.trip_id) {
-          if ((await Trip.query().where('id', body.trip_id).first()) != null) {
-            const service = await Service.create(body)
+          let trip = await Trip.query().where('id', body.service.trip_id).first()
+          if (trip != null) {
+            body.service.price = trip.distance * 50
+            const service = await Service.create(body.service)
             return response
               .status(201)
               .json({ mensaje: 'Servicio creado exitosamente', data: service })
@@ -69,8 +76,14 @@ export default class ServicesController {
               .json({ mensaje: 'No se encontro el viaje referenciado', data: body })
           }
         }
-        const service = await Service.create(body)
-        return response.status(201).json({ mensaje: 'Servicio creado exitosamente', data: service })
+        body.service.price = body.trip.distance * 50
+        console.log(body.trip.distance * 50)
+
+        const service = await Service.create(body.service)
+        const trip = await this.tripController.bkstore(service, body, response)
+        return response
+          .status(201)
+          .json({ mensaje: 'Servicio creado exitosamente', data: { service: service, trip: trip } })
       } else {
         return response
           .status(404)

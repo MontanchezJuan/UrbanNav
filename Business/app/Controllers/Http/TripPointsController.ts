@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database'
 import TripPoint from 'App/Models/TripPoint'
 
 export default class TripPointsController {
@@ -91,5 +92,15 @@ export default class TripPointsController {
         .status(500)
         .json({ mensaje: 'Error en la eliminacion del punto de viaje', data: error })
     }
+  }
+
+  public async getRoute({ request, response }: HttpContextContract) {
+    try {
+      let body = request.body()
+      let origin: number = body.origin
+      let destination: number = body.destination
+      const data = await Database.from('trip')
+      return response.status(500).json({ mensaje: 'viajes', data })
+    } catch (error) {}
   }
 }

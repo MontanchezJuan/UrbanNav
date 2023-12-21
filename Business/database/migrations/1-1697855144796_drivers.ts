@@ -9,6 +9,8 @@ export default class extends BaseSchema {
       table.string('user_id').notNullable().unique()
       table.boolean('is_active').notNullable().defaultTo(false)
       table.integer('status').notNullable().defaultTo(0)
+      table.double('latitude').notNullable()
+      table.double('longitude').notNullable()
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */

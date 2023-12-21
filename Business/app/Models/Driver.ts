@@ -17,6 +17,12 @@ export default class Driver extends BaseModel {
   public is_active: boolean
 
   @column()
+  public latitude: number
+
+  @column()
+  public longitude: number
+
+  @column()
   public status: number
 
   // relacion 1 a 1 con licencia

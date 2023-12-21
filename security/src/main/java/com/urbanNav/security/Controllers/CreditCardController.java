@@ -68,8 +68,6 @@ public class CreditCardController {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(this.jsonResponsesService.getFinalJSON());
             } else {
-                card.setCardCVV(encryp.convertirSHA256(card.getCardCVV()));
-                card.setCardNumber(encryp.convertirSHA256(card.getCardNumber()));
                 this.cardRepository.save(card);
                 this.jsonResponsesService.setMessage("Tarjeta de credito agregado con éxito");
                 this.jsonResponsesService.setData(card);
